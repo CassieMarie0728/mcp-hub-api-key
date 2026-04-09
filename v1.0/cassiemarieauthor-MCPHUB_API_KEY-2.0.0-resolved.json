@@ -1,0 +1,3767 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "MCP Hub API",
+    "description": "MCP Hub API provides a unified wrapper for discovering MCP servers, creating and managing connections, inspecting capabilities, invoking tools, reading resources, retrieving prompts, streaming events, and handling user/session authentication.\n\nThis contract is designed for both browser-based app sessions and programmatic clients, with support for cookie-based sessions and bearer-token authentication.",
+    "termsOfService": "https://cassiemarie0728.github.io/policies/mcp-hub-terms-of-service/",
+    "contact": {
+      "name": "MCP Hub Support",
+      "url": "https://github.com/cassiemarie0728",
+      "email": "cmcrossno@gmail.com"
+    },
+    "license": {
+      "name": "Apache License, Version 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://virtserver.swaggerhub.com/cassiemarieauthor/MCPHUB_API_KEY/2.0.0",
+      "description": "SwaggerHub API Auto Mocking"
+    },
+    {
+      "url": "/api/",
+      "description": "Base path prefix for all API routes."
+    }
+  ],
+  "tags": [
+    {
+      "name": "system",
+      "description": "System related endpoints"
+    },
+    {
+      "name": "auth",
+      "description": "Authentication and user session management"
+    },
+    {
+      "name": "servers",
+      "description": "MCP server discovery and management"
+    },
+    {
+      "name": "contexts",
+      "description": "MCP server contexts and models management"
+    },
+    {
+      "name": "queries",
+      "description": "Sending queries and commands to MCP servers"
+    },
+    {
+      "name": "tools",
+      "description": "Access to related tools integrated within MCP Hub"
+    },
+    {
+      "name": "connections",
+      "description": "MCP connection lifecycle management"
+    },
+    {
+      "name": "capabilities",
+      "description": "Capability and server metadata inspection"
+    },
+    {
+      "name": "resources",
+      "description": "Resource management and subscription"
+    },
+    {
+      "name": "prompts",
+      "description": "Prompt listing and retrieval"
+    },
+    {
+      "name": "completions",
+      "description": "Completion requests"
+    },
+    {
+      "name": "logging",
+      "description": "Logging level management"
+    },
+    {
+      "name": "events",
+      "description": "Event streaming and request inspection"
+    },
+    {
+      "name": "runtime",
+      "description": "Per-connection MCP runtime operations such as initialize, tool invocation, and cancellation"
+    },
+    {
+      "name": "connectionAuth",
+      "description": "Per-connection authentication bootstrap and status"
+    }
+  ],
+  "paths": {
+    "/system/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Health check endpoint",
+        "description": "Health check endpoint",
+        "operationId": "getSystemHealth",
+        "parameters": [
+          {
+            "name": "timestamp",
+            "in": "query",
+            "description": "Timestamp for health check, must be a non-negative number",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Health check response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid timestamp parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/system/notifyOwner": {
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Notify owner (admin only)",
+        "description": "Notify owner (admin only)",
+        "operationId": "postNotifyOwner",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/system_notifyOwner_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Notification sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "User login with username and password",
+        "description": "Authenticates a user and starts a browser session. Programmatic clients may exchange the returned token for bearer-style access where supported.",
+        "operationId": "postLogin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/auth_login_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful login returns authentication token and user info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid login credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Get current authenticated user",
+        "description": "Get current authenticated user",
+        "operationId": "getCurrentUser",
+        "responses": {
+          "200": {
+            "description": "Current user information or null if not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_3"
+                },
+                "example": {
+                  "id": 123,
+                  "openId": "openid-xyz",
+                  "name": "John Doe",
+                  "email": "john.doe@example.com",
+                  "loginMethod": "oauth",
+                  "role": "user",
+                  "createdAt": "2023-01-01T12:00:00Z",
+                  "updatedAt": "2023-01-10T12:00:00Z",
+                  "lastSignedIn": "2023-02-01T08:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout user and clear session cookie",
+        "description": "Logout user and clear session cookie",
+        "operationId": "postLogout",
+        "responses": {
+          "200": {
+            "description": "Logout successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_1"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/servers": {
+      "get": {
+        "tags": [
+          "servers"
+        ],
+        "summary": "List available MCP servers",
+        "description": "Returns MCP servers that the current user can browse or connect to.",
+        "operationId": "listMcpServers",
+        "parameters": [
+          {
+            "name": "region",
+            "in": "query",
+            "description": "Filter servers by region",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter servers by status (e.g., online, offline)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "online",
+                "offline"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of MCP servers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/McpServer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "servers"
+        ],
+        "summary": "Register a new MCP server (admin only)",
+        "description": "Register a new MCP server (admin only)",
+        "operationId": "registerMcpServer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/servers_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "MCP server registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpServer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/servers/{serverId}": {
+      "get": {
+        "tags": [
+          "servers"
+        ],
+        "summary": "Get details of a specific MCP server",
+        "description": "Get details of a specific MCP server",
+        "operationId": "getMcpServerById",
+        "parameters": [
+          {
+            "name": "serverId",
+            "in": "path",
+            "description": "Unique identifier of the MCP server",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MCP server details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpServer"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "MCP server not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections": {
+      "get": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "List all MCP connections for the authenticated user",
+        "description": "List all MCP connections for the authenticated user",
+        "operationId": "listConnections",
+        "responses": {
+          "200": {
+            "description": "List of MCP connections",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Connection"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "Create and initialize a new MCP connection",
+        "description": "Create and initialize a new MCP connection",
+        "operationId": "createConnection",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/connections_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Connection created and initialized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Connection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or initialization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}": {
+      "get": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "Get details and status of a specific MCP connection",
+        "description": "Get details and status of a specific MCP connection",
+        "operationId": "getConnectionById",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connection details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Connection"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "Disconnect and remove an MCP connection",
+        "description": "Disconnect and remove an MCP connection",
+        "operationId": "deleteConnection",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Connection deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/ping": {
+      "post": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "Send a ping to the MCP server via the connection",
+        "description": "Send a ping to the MCP server via the connection",
+        "operationId": "pingConnection",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pong response from MCP server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_4"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/capabilities": {
+      "get": {
+        "tags": [
+          "capabilities"
+        ],
+        "summary": "List capabilities of connected MCP servers",
+        "description": "Returns a summarized view of negotiated capabilities across active connections.",
+        "operationId": "listCapabilities",
+        "responses": {
+          "200": {
+            "description": "List of capabilities per server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Capability"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/tools": {
+      "get": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "List available tools integrated within MCP Hub",
+        "description": "Returns the hub-level tool catalog or cached tool registry.",
+        "operationId": "listTools",
+        "responses": {
+          "200": {
+            "description": "List of tools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tool"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/tools/{toolId}": {
+      "get": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Get details of a specific tool",
+        "description": "Get details of a specific tool",
+        "operationId": "getToolById",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "description": "Unique identifier of the tool",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tool details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tool"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tool not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/resources": {
+      "get": {
+        "tags": [
+          "resources"
+        ],
+        "summary": "List resources available from MCP servers",
+        "description": "Returns cached resource metadata discoverable from connected MCP servers.",
+        "operationId": "listResources",
+        "parameters": [
+          {
+            "name": "serverId",
+            "in": "query",
+            "description": "Filter resources by MCP server ID",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of resources",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Resource"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/resources/{resourceId}": {
+      "get": {
+        "tags": [
+          "resources"
+        ],
+        "summary": "Read a specific resource",
+        "description": "Read a specific resource",
+        "operationId": "readResource",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "description": "Unique identifier of the resource",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceContent"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/resources/templates": {
+      "get": {
+        "tags": [
+          "resources"
+        ],
+        "summary": "List resource templates",
+        "description": "List resource templates",
+        "operationId": "listResourceTemplates",
+        "responses": {
+          "200": {
+            "description": "List of resource templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResourceTemplate"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/resources/{resourceId}/subscribe": {
+      "post": {
+        "tags": [
+          "resources"
+        ],
+        "summary": "Subscribe to resource updates",
+        "description": "Subscribe to resource updates",
+        "operationId": "subscribeResource",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "description": "Unique identifier of the resource",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_5"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/resources/{resourceId}/unsubscribe": {
+      "post": {
+        "tags": [
+          "resources"
+        ],
+        "summary": "Unsubscribe from resource updates",
+        "description": "Unsubscribe from resource updates",
+        "operationId": "unsubscribeResource",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "description": "Unique identifier of the resource",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unsubscription successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_6"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/prompts": {
+      "get": {
+        "tags": [
+          "prompts"
+        ],
+        "summary": "List available prompts",
+        "description": "Returns cached prompt metadata available through MCP connections.",
+        "operationId": "listPrompts",
+        "responses": {
+          "200": {
+            "description": "List of prompts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Prompt"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/prompts/{promptId}": {
+      "get": {
+        "tags": [
+          "prompts"
+        ],
+        "summary": "Get details of a specific prompt",
+        "description": "Get details of a specific prompt",
+        "operationId": "getPromptById",
+        "parameters": [
+          {
+            "name": "promptId",
+            "in": "path",
+            "description": "Unique identifier of the prompt",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prompt details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prompt"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Prompt not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/completions": {
+      "post": {
+        "tags": [
+          "completions"
+        ],
+        "summary": "Request a completion from an MCP server",
+        "description": "Request a completion from an MCP server",
+        "operationId": "postCompletion",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/completions_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Completion response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_7"
+                },
+                "example": {
+                  "completion": "Traduisez le texte suivant en français :",
+                  "metadata": {
+                    "executionTimeMs": 20
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Server, context, or model not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/logging/level": {
+      "post": {
+        "tags": [
+          "logging"
+        ],
+        "summary": "Set logging level for MCP Hub runtime",
+        "description": "Set logging level for MCP Hub runtime",
+        "operationId": "setLoggingLevel",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/logging_level_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Logging level set successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid logging level",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/events/stream": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Stream live events and notifications (SSE or WebSocket)",
+        "description": "Stream live events and notifications (SSE or WebSocket)",
+        "operationId": "streamEvents",
+        "responses": {
+          "200": {
+            "description": "Event stream established",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "description": "Server-Sent Events stream"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/events/requests/{requestId}": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Get details and history of a specific request",
+        "description": "Get details and history of a specific request",
+        "operationId": "getRequestDetails",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "description": "Unique identifier of the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request details and event history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Request not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/queries": {
+      "post": {
+        "tags": [
+          "queries"
+        ],
+        "summary": "Send a query or command to an MCP server",
+        "description": "Send a query or command to an MCP server",
+        "operationId": "postQuery",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/queries_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Query executed successfully, returns results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_8"
+                },
+                "example": {
+                  "results": [
+                    {
+                      "id": 1,
+                      "name": "Alice",
+                      "active": true
+                    },
+                    {
+                      "id": 2,
+                      "name": "Bob",
+                      "active": true
+                    }
+                  ],
+                  "metadata": {
+                    "executionTimeMs": 15,
+                    "rowCount": 2
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Server, context, or model not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/contexts": {
+      "get": {
+        "tags": [
+          "contexts"
+        ],
+        "summary": "List available contexts from connected MCP servers",
+        "description": "List available contexts from connected MCP servers",
+        "operationId": "listContexts",
+        "parameters": [
+          {
+            "name": "serverId",
+            "in": "query",
+            "description": "Filter contexts by MCP server ID",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of contexts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Context"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/contexts/{contextId}": {
+      "get": {
+        "tags": [
+          "contexts"
+        ],
+        "summary": "Get details of a specific context",
+        "description": "Get details of a specific context",
+        "operationId": "getContextById",
+        "parameters": [
+          {
+            "name": "contextId",
+            "in": "path",
+            "description": "Unique identifier of the context",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Context details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Context"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Context not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/contexts/{contextId}/models": {
+      "get": {
+        "tags": [
+          "contexts"
+        ],
+        "summary": "List models available in a specific context",
+        "description": "List models available in a specific context",
+        "operationId": "listModelsInContext",
+        "parameters": [
+          {
+            "name": "contextId",
+            "in": "path",
+            "description": "Unique identifier of the context",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of models in the context",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Model"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Context not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/initialize": {
+      "post": {
+        "tags": [
+          "runtime"
+        ],
+        "summary": "Initialize an existing MCP connection",
+        "description": "Performs MCP initialize and initialized lifecycle calls for a created connection.",
+        "operationId": "initializeConnection",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionInitializeBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Connection initialized successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionInitializeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid initialize request or server negotiation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/capabilities": {
+      "get": {
+        "tags": [
+          "runtime"
+        ],
+        "summary": "Get negotiated capabilities for a connection",
+        "description": "Returns the current server and client capability view for a single connection.",
+        "operationId": "getConnectionCapabilities",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Capabilities for the connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Capability"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/tools": {
+      "get": {
+        "tags": [
+          "runtime"
+        ],
+        "summary": "List tools for a connection",
+        "description": "Fetches the live tool list exposed by the connected MCP server.",
+        "operationId": "listConnectionTools",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tool list for the connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tool"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/tools/{toolName}/call": {
+      "post": {
+        "tags": [
+          "runtime"
+        ],
+        "summary": "Call a tool on a connection",
+        "description": "Invokes a named MCP tool against the target connection.",
+        "operationId": "callConnectionTool",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "toolName",
+            "in": "path",
+            "description": "Name of the MCP tool to invoke.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolCallBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Tool call result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolCallResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid tool arguments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection or tool not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/resources": {
+      "get": {
+        "tags": [
+          "runtime"
+        ],
+        "summary": "List resources for a connection",
+        "description": "Fetches the live resource list from the connected MCP server.",
+        "operationId": "listConnectionResources",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource list for the connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Resource"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/resources/read": {
+      "post": {
+        "tags": [
+          "runtime"
+        ],
+        "summary": "Read a resource by URI on a connection",
+        "description": "Reads a live resource from the MCP server using its resource URI.",
+        "operationId": "readConnectionResource",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourceReadBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Resource read result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceContent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid resource read request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection or resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/prompts": {
+      "get": {
+        "tags": [
+          "runtime"
+        ],
+        "summary": "List prompts for a connection",
+        "description": "Fetches prompt templates directly from the connected MCP server.",
+        "operationId": "listConnectionPrompts",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prompt list for the connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Prompt"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/prompts/{promptName}": {
+      "post": {
+        "tags": [
+          "runtime"
+        ],
+        "summary": "Get a rendered prompt from a connection",
+        "description": "Retrieves a prompt template and applies optional prompt arguments.",
+        "operationId": "getConnectionPrompt",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promptName",
+            "in": "path",
+            "description": "Name of the prompt template.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromptGetBody"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered prompt response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prompt"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection or prompt not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/cancel": {
+      "post": {
+        "tags": [
+          "runtime"
+        ],
+        "summary": "Cancel an in-flight request on a connection",
+        "description": "Requests cancellation for an active MCP request.",
+        "operationId": "cancelConnectionRequest",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Cancellation signal accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_202"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection or request not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/auth/status": {
+      "get": {
+        "tags": [
+          "connectionAuth"
+        ],
+        "summary": "Get auth status for a connection",
+        "description": "Returns whether the remote MCP server connection is authenticated and what auth type is active.",
+        "operationId": "getConnectionAuthStatus",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connection auth status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/connections/{connectionId}/auth/start": {
+      "post": {
+        "tags": [
+          "connectionAuth"
+        ],
+        "summary": "Start auth flow for a connection",
+        "description": "Bootstraps remote authentication for MCP servers that require browser or token-based authorization.",
+        "operationId": "startConnectionAuth",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "Unique identifier of the connection.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthStartBody"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Remote auth flow started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthStartResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid auth bootstrap request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appSessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Primary key identifier",
+            "example": 123
+          },
+          "openId": {
+            "type": "string",
+            "description": "Unique OpenID identifier",
+            "example": "openid-xyz"
+          },
+          "name": {
+            "type": "string",
+            "description": "User's name",
+            "nullable": true,
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "User's email address",
+            "nullable": true,
+            "example": "john.doe@example.com"
+          },
+          "loginMethod": {
+            "type": "string",
+            "description": "Method used for login",
+            "nullable": true,
+            "example": "oauth"
+          },
+          "role": {
+            "type": "string",
+            "description": "User role in the system",
+            "example": "user",
+            "enum": [
+              "user",
+              "admin"
+            ],
+            "default": "user"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Timestamp when user was created",
+            "format": "date-time",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Timestamp when user was last updated",
+            "format": "date-time",
+            "example": "2023-01-10T12:00:00Z"
+          },
+          "lastSignedIn": {
+            "type": "string",
+            "description": "Timestamp of last sign-in",
+            "format": "date-time",
+            "example": "2023-02-01T08:00:00Z"
+          }
+        },
+        "description": "A user registered in the system"
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid request parameter"
+          }
+        },
+        "description": "Standard error response"
+      },
+      "McpServer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique server identifier",
+            "example": "server-123"
+          },
+          "name": {
+            "type": "string",
+            "description": "Server display name",
+            "example": "MCP Server Alpha"
+          },
+          "url": {
+            "type": "string",
+            "description": "Base URL of the MCP server",
+            "format": "uri",
+            "example": "https://mcp-alpha.example.com"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional server description",
+            "nullable": true,
+            "example": "Primary MCP server for region A"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current server status",
+            "example": "online",
+            "enum": [
+              "online",
+              "offline"
+            ]
+          },
+          "region": {
+            "type": "string",
+            "description": "Server region or location",
+            "nullable": true,
+            "example": "us-east-1"
+          }
+        },
+        "description": "MCP server metadata"
+      },
+      "Context": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique context identifier",
+            "example": "context-456"
+          },
+          "serverId": {
+            "type": "string",
+            "description": "Associated MCP server ID",
+            "example": "server-123"
+          },
+          "name": {
+            "type": "string",
+            "description": "Context name",
+            "example": "User Data Context"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional context description",
+            "nullable": true,
+            "example": "Context containing user-related models"
+          }
+        },
+        "description": "MCP server context information"
+      },
+      "Model": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique model identifier",
+            "example": "model-789"
+          },
+          "contextId": {
+            "type": "string",
+            "description": "Associated context ID",
+            "example": "context-456"
+          },
+          "name": {
+            "type": "string",
+            "description": "Model name",
+            "example": "UserModel"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional model description",
+            "nullable": true,
+            "example": "Model representing user entities"
+          },
+          "schema": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "JSON schema or metadata describing the model structure"
+          }
+        },
+        "description": "Model within a context"
+      },
+      "Tool": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique tool identifier",
+            "example": "tool-001"
+          },
+          "name": {
+            "type": "string",
+            "description": "Tool name",
+            "example": "Data Visualizer"
+          },
+          "description": {
+            "type": "string",
+            "description": "Tool description",
+            "nullable": true,
+            "example": "Visualize data from MCP queries"
+          },
+          "version": {
+            "type": "string",
+            "description": "Tool version",
+            "example": "1.2.3"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL or endpoint to access the tool",
+            "format": "uri",
+            "example": "https://tools.mcphub.example.com/datavisualizer"
+          }
+        },
+        "description": "Tool integrated within MCP Hub"
+      },
+      "Connection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique connection identifier",
+            "example": "conn-abc123"
+          },
+          "serverId": {
+            "type": "string",
+            "description": "MCP server ID connected to",
+            "example": "server-123"
+          },
+          "transport": {
+            "type": "string",
+            "description": "Transport type used",
+            "example": "stdio",
+            "enum": [
+              "stdio",
+              "streamable-http"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "Current connection status",
+            "example": "connected",
+            "enum": [
+              "initializing",
+              "connected",
+              "disconnected",
+              "error"
+            ]
+          },
+          "protocolVersion": {
+            "type": "string",
+            "description": "Negotiated MCP protocol version",
+            "example": "1.0.0"
+          },
+          "capabilities": {
+            "type": "array",
+            "description": "List of server capabilities",
+            "example": [
+              "tools/list",
+              "resources/list"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Timestamp when connection was created",
+            "format": "date-time",
+            "example": "2023-03-01T10:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Timestamp when connection was last updated",
+            "format": "date-time",
+            "example": "2023-03-01T10:05:00Z"
+          }
+        },
+        "description": "MCP connection metadata and status"
+      },
+      "Capability": {
+        "type": "object",
+        "properties": {
+          "serverId": {
+            "type": "string",
+            "description": "MCP server ID",
+            "example": "server-123"
+          },
+          "capabilities": {
+            "type": "array",
+            "description": "List of supported capabilities",
+            "example": [
+              "tools/list",
+              "resources/list",
+              "prompts/list"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Capability metadata for MCP servers"
+      },
+      "Resource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique resource identifier",
+            "example": "resource-001"
+          },
+          "serverId": {
+            "type": "string",
+            "description": "MCP server ID",
+            "example": "server-123"
+          },
+          "name": {
+            "type": "string",
+            "description": "Resource name",
+            "example": "UserProfiles"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional resource description",
+            "nullable": true,
+            "example": "Collection of user profiles"
+          }
+        },
+        "description": "MCP resource metadata"
+      },
+      "ResourceContent": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Content of a resource"
+      },
+      "ResourceTemplate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique template identifier",
+            "example": "template-001"
+          },
+          "name": {
+            "type": "string",
+            "description": "Template name",
+            "example": "UserProfileTemplate"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional template description",
+            "nullable": true,
+            "example": "Template for user profile resources"
+          }
+        },
+        "description": "Template metadata for resources"
+      },
+      "Prompt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique prompt identifier",
+            "example": "prompt-001"
+          },
+          "name": {
+            "type": "string",
+            "description": "Prompt name",
+            "example": "TranslatePrompt"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional prompt description",
+            "nullable": true,
+            "example": "Prompt for translation tasks"
+          },
+          "content": {
+            "type": "string",
+            "description": "Prompt content or template",
+            "example": "Translate the following text to French:"
+          }
+        },
+        "description": "Prompt metadata"
+      },
+      "RequestDetails": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "description": "Unique request identifier",
+            "example": "req-123abc"
+          },
+          "status": {
+            "type": "string",
+            "description": "Request status",
+            "example": "completed",
+            "enum": [
+              "pending",
+              "completed",
+              "failed"
+            ]
+          },
+          "events": {
+            "type": "array",
+            "description": "List of events related to the request",
+            "example": [
+              {
+                "timestamp": "2023-03-01T10:00:01Z",
+                "type": "request_sent",
+                "message": "Request sent to MCP server"
+              },
+              {
+                "timestamp": "2023-03-01T10:00:02Z",
+                "type": "response_received",
+                "message": "Response received from MCP server"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/RequestDetails_events"
+            }
+          }
+        },
+        "description": "Details and event history of a request"
+      },
+      "TransportOptionsStdio": {
+        "required": [
+          "command"
+        ],
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Executable used to launch the MCP server process."
+          },
+          "args": {
+            "type": "array",
+            "description": "Optional command-line arguments.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "env": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Environment variables passed to the child process."
+          },
+          "cwd": {
+            "type": "string",
+            "description": "Working directory for the child process."
+          }
+        },
+        "description": "Transport options for stdio-based MCP servers."
+      },
+      "TransportOptionsStreamableHttp": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "HTTP endpoint for the MCP server transport.",
+            "format": "uri"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Optional HTTP headers sent with transport requests."
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Optional session identifier returned by the remote transport."
+          }
+        },
+        "description": "Transport options for streamable HTTP MCP servers."
+      },
+      "ConnectionInitializeBody": {
+        "required": [
+          "clientName",
+          "clientVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "clientName": {
+            "type": "string",
+            "description": "Human-readable name of the MCP Hub client."
+          },
+          "clientVersion": {
+            "type": "string",
+            "description": "Semantic version of the MCP Hub client."
+          },
+          "protocolVersion": {
+            "type": "string",
+            "description": "Preferred MCP protocol version."
+          },
+          "clientCapabilities": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Client capabilities advertised during initialization."
+          }
+        },
+        "example": {
+          "clientName": "MCP Hub",
+          "clientVersion": "2.1.0",
+          "protocolVersion": "2025-06-18",
+          "clientCapabilities": {
+            "roots": {
+              "listChanged": true
+            },
+            "sampling": {}
+          }
+        }
+      },
+      "ConnectionInitializeResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "protocolVersion": {
+            "type": "string"
+          },
+          "serverInfo": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "capabilities": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "instructions": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "example": {
+          "success": true,
+          "protocolVersion": "2025-06-18",
+          "serverInfo": {
+            "name": "Filesystem MCP",
+            "version": "1.4.0"
+          },
+          "capabilities": {
+            "tools": {
+              "listChanged": true
+            },
+            "resources": {
+              "subscribe": true
+            }
+          },
+          "instructions": "Use resources for file reads and tools for write operations."
+        }
+      },
+      "ToolCallBody": {
+        "required": [
+          "arguments"
+        ],
+        "type": "object",
+        "properties": {
+          "arguments": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Arguments passed to the target tool."
+          },
+          "requestId": {
+            "type": "string",
+            "description": "Optional client-generated id for tracing."
+          }
+        },
+        "example": {
+          "arguments": {
+            "path": "/docs/readme.md"
+          },
+          "requestId": "req-tool-001"
+        }
+      },
+      "ToolCallResult": {
+        "type": "object",
+        "properties": {
+          "isError": {
+            "type": "boolean"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "structuredContent": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "example": {
+          "isError": false,
+          "content": [
+            {
+              "type": "text",
+              "text": "Readme loaded successfully."
+            }
+          ],
+          "structuredContent": {
+            "bytes": 1024
+          },
+          "metadata": {
+            "executionTimeMs": 42
+          }
+        }
+      },
+      "ResourceReadBody": {
+        "required": [
+          "uri"
+        ],
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string",
+            "description": "Resource URI exposed by the MCP server."
+          },
+          "cursor": {
+            "type": "string",
+            "description": "Optional pagination cursor.",
+            "nullable": true
+          }
+        },
+        "example": {
+          "uri": "file:///workspace/notes/todo.md"
+        }
+      },
+      "PromptGetBody": {
+        "type": "object",
+        "properties": {
+          "arguments": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Prompt template arguments."
+          }
+        },
+        "example": {
+          "arguments": {
+            "targetLanguage": "fr"
+          }
+        }
+      },
+      "CancelRequestBody": {
+        "required": [
+          "requestId"
+        ],
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "description": "Identifier of the in-flight request to cancel."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Optional user-facing cancellation reason.",
+            "nullable": true
+          }
+        },
+        "example": {
+          "requestId": "req-123abc",
+          "reason": "User navigated away"
+        }
+      },
+      "AuthStatus": {
+        "type": "object",
+        "properties": {
+          "authenticated": {
+            "type": "boolean"
+          },
+          "authType": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "none",
+              "oauth",
+              "bearer",
+              "basic",
+              "custom"
+            ]
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "authenticated": true,
+          "authType": "oauth",
+          "expiresAt": "2026-04-09T06:00:00Z",
+          "scopes": [
+            "tools:read",
+            "resources:read"
+          ]
+        }
+      },
+      "AuthStartBody": {
+        "type": "object",
+        "properties": {
+          "callbackUrl": {
+            "type": "string",
+            "description": "Client callback URL for completing auth.",
+            "format": "uri"
+          },
+          "scopes": {
+            "type": "array",
+            "description": "Requested scopes for the connection.",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "callbackUrl": "https://app.example.com/mcp/auth/callback",
+          "scopes": [
+            "tools:read",
+            "resources:read"
+          ]
+        }
+      },
+      "AuthStartResponse": {
+        "type": "object",
+        "properties": {
+          "authorizationUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "state": {
+            "type": "string"
+          },
+          "codeVerifierRequired": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "authorizationUrl": "https://mcp.example.com/oauth/authorize?...",
+          "state": "oauth-state-123",
+          "codeVerifierRequired": true
+        }
+      },
+      "inline_response_200": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "ok": true
+        }
+      },
+      "system_notifyOwner_body": {
+        "required": [
+          "content",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Notification title"
+          },
+          "content": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Notification content"
+          }
+        },
+        "example": {
+          "title": "System Alert",
+          "content": "An important event has occurred."
+        }
+      },
+      "inline_response_200_1": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "success": true
+        }
+      },
+      "auth_login_body": {
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Username or email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "format": "password"
+          }
+        },
+        "example": {
+          "username": "john.doe",
+          "password": "secret123"
+        }
+      },
+      "inline_response_200_2": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT or session token for authenticated requests",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "inline_response_200_3": {
+        "nullable": true,
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          }
+        ]
+      },
+      "servers_body": {
+        "required": [
+          "name",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Server display name"
+          },
+          "url": {
+            "type": "string",
+            "description": "Base URL of the MCP server",
+            "format": "uri"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional server description"
+          }
+        },
+        "example": {
+          "name": "MCP Server Alpha",
+          "url": "https://mcp-alpha.example.com",
+          "description": "Primary MCP server for region A"
+        }
+      },
+      "connections_body": {
+        "required": [
+          "serverId",
+          "transport"
+        ],
+        "type": "object",
+        "properties": {
+          "serverId": {
+            "type": "string",
+            "description": "MCP server ID to connect to"
+          },
+          "transport": {
+            "type": "string",
+            "description": "Transport type (stdio or streamable-http)",
+            "enum": [
+              "stdio",
+              "streamable-http"
+            ]
+          },
+          "options": {
+            "description": "Transport-specific options. Use stdio options for stdio connections and streamable HTTP options for streamable-http connections.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TransportOptionsStdio"
+              },
+              {
+                "$ref": "#/components/schemas/TransportOptionsStreamableHttp"
+              }
+            ]
+          }
+        },
+        "example": {
+          "serverId": "server-123",
+          "transport": "stdio",
+          "options": {
+            "command": "/usr/local/bin/mcp-server",
+            "args": [
+              "--stdio"
+            ]
+          }
+        }
+      },
+      "inline_response_200_4": {
+        "type": "object",
+        "properties": {
+          "pong": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "pong": true
+        }
+      },
+      "inline_response_200_5": {
+        "type": "object",
+        "properties": {
+          "subscribed": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "subscribed": true
+        }
+      },
+      "inline_response_200_6": {
+        "type": "object",
+        "properties": {
+          "unsubscribed": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "unsubscribed": true
+        }
+      },
+      "completions_body": {
+        "required": [
+          "contextId",
+          "modelId",
+          "prompt",
+          "serverId"
+        ],
+        "type": "object",
+        "properties": {
+          "serverId": {
+            "type": "string",
+            "description": "Target MCP server ID"
+          },
+          "contextId": {
+            "type": "string",
+            "description": "Target context ID"
+          },
+          "modelId": {
+            "type": "string",
+            "description": "Target model ID"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Prompt string to complete"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Optional parameters for the completion"
+          }
+        },
+        "example": {
+          "serverId": "server-123",
+          "contextId": "context-456",
+          "modelId": "model-789",
+          "prompt": "Translate the following text to French:",
+          "parameters": {
+            "maxTokens": 100
+          }
+        }
+      },
+      "inline_response_200_7": {
+        "type": "object",
+        "properties": {
+          "completion": {
+            "type": "string",
+            "description": "Completion text"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the completion"
+          }
+        }
+      },
+      "logging_level_body": {
+        "required": [
+          "level"
+        ],
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "description": "Logging level to set",
+            "enum": [
+              "debug",
+              "info",
+              "warn",
+              "error",
+              "fatal"
+            ]
+          }
+        },
+        "example": {
+          "level": "info"
+        }
+      },
+      "queries_body": {
+        "required": [
+          "contextId",
+          "modelId",
+          "query",
+          "serverId"
+        ],
+        "type": "object",
+        "properties": {
+          "serverId": {
+            "type": "string",
+            "description": "Target MCP server ID"
+          },
+          "contextId": {
+            "type": "string",
+            "description": "Target context ID"
+          },
+          "modelId": {
+            "type": "string",
+            "description": "Target model ID"
+          },
+          "query": {
+            "type": "string",
+            "description": "Query or command string to execute"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Optional parameters for the query"
+          }
+        },
+        "example": {
+          "serverId": "server-123",
+          "contextId": "context-456",
+          "modelId": "model-789",
+          "query": "SELECT * FROM users WHERE active = true",
+          "parameters": {
+            "limit": 10
+          }
+        }
+      },
+      "inline_response_200_8": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "description": "Query results as an array of objects",
+            "items": {
+              "type": "object"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the query execution"
+          }
+        }
+      },
+      "inline_response_202": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "accepted": true
+        }
+      },
+      "RequestDetails_events": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "appSessionCookie": {
+        "type": "apiKey",
+        "description": "Session cookie used to authenticate signed-in users.",
+        "name": "app_session_id",
+        "in": "cookie"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "description": "Bearer token authentication for programmatic clients.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
