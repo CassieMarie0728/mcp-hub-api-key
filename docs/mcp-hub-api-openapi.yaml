@@ -1,0 +1,2476 @@
+```yaml
+openapi: 3.0.0
+info:
+  title: MCP Hub API
+  description: |
+    The MCP Hub acts as a standards-aligned runtime and wrapper API for interacting with various MCP (Multi-Component Protocol) servers.
+    It abstracts away the complexities of the underlying MCP protocol, providing a clean, RESTful interface for frontends
+    and other clients to manage connections, execute operations, and consume events.
+
+    **Core Principles:**
+    - **Standards Alignment:** Built around the MCP specification for interoperability.
+    - **Runtime + Wrapper:** Manages the lifecycle of MCP servers and translates raw protocol into a user-friendly API.
+    - **Connection Lifecycle:** Handles `initialize` → `initialized` → `operational` flow.
+    - **Capability Negotiation:** Dynamically discovers and persists server capabilities.
+    - **Unified Interface:** Provides consistent APIs for tools, resources, prompts, completions, and logging, regardless of the MCP server's specific implementation.
+    - **Secure Authentication:** Manages different authentication mechanisms (env/secret injection for stdio, OAuth/bearer for HTTP).
+    - **Event-Driven:** Normalizes async signals into a streamable event model.
+
+    **Architecture Highlights:**
+    - **Product API:** REST/tRPC layer for UI interaction (connections, logs, sessions).
+    - **MCP Runtime:** JSON-RPC engine, lifecycle management, capability negotiation.
+    - **Transport:** Adapters for `stdio` (subprocess) and `Streamable HTTP` connections.
+    - **Auth:** Token/session management and secret injection.
+    - **Persistence:** Stores connections, metadata, cache, logs, and credentials.
+    - **Orchestration:** Normalized responses, event generation, UI-ready output.
+
+    **Connection Lifecycle Flow:**
+    1.  **Create:** Define connection parameters (transport, endpoint/command, auth mode, desired capabilities).
+    2.  **Open:** Establish the physical transport (`stdio` → subprocess, `HTTP` → session client).
+    3.  **Initialize:** Send the MCP `initialize` message with protocol details and capabilities; store server info and negotiated state.
+    4.  **Notify:** Send the MCP `initialized` notification once ready.
+    5.  **Operate:** Enable features and operations only after successful initialization.
+    6.  **Shutdown:** Gracefully close the transport, clear authentication state, and update connection status.
+
+    This API aims to provide a robust, scalable, and developer-friendly way to integrate with and manage MCP-compliant services.
+  version: 1.0.0
+  contact:
+    name: MCP Hub Team
+    email: api-support@example.com
+    url: https://www.example.com/mcphub-docs
+
+servers:
+  - url: https://api.mcphub.example.com/v1
+    description: Production MCP Hub API
+  - url: http://localhost:8080/v1
+    description: Local Development MCP Hub API
+
+tags:
+  - name: Connections
+    description: Manage connections to MCP servers, including creation, status, and lifecycle.
+  - name: Auth
+    description: Handle authentication and secret management for MCP server connections.
+  - name: Capabilities
+    description: Discover and manage the capabilities offered by connected MCP servers.
+  - name: Tools
+    description: Interact with tools exposed by MCP servers.
+  - name: Resources
+    description: Manage and access resources provided by MCP servers.
+  - name: Prompts
+    description: Retrieve and utilize prompts/templates from MCP servers.
+  - name: Completions
+    description: Request code or text completions from MCP servers.
+  - name: Logs & Events
+    description: Access historical logs and subscribe to real-time events from connections.
+  - name: Requests
+    description: Monitor and manage asynchronous operations initiated via the Hub.
+  - name: Roots
+    description: Manage file system roots exposed by MCP servers.
+
+security:
+  - BearerAuth: []
+  - OAuth2: []
+
+paths:
+  /connections:
+    get:
+      summary: List all active MCP server connections
+      description: Retrieves a list of all connections managed by the MCP Hub, including their current status and basic details.
+      operationId: listConnections
+      tags:
+        - Connections
+      responses:
+        200:
+          description: A list of connections.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConnectionSummary'
+              examples:
+                success:
+                  value:
+                    - id: "conn_abc123"
+                      name: "My Dev Server"
+                      status: "operational"
+                      transport: "stdio"
+                      endpoint: "node mcp-server.js"
+                    - id: "conn_xyz789"
+                      name: "Cloud MCP Service"
+                      status: "initialized"
+                      transport: "http"
+                      endpoint: "https://mcp.cloud.example.com"
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create a new MCP server connection
+      description: Establishes a new connection configuration with an MCP server but does not yet activate it. This defines how the Hub will connect.
+      operationId: createConnection
+      tags:
+        - Connections
+      requestBody:
+        description: Connection configuration details.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectionCreateRequest'
+            examples:
+              stdioConnection:
+                value:
+                  name: "Local NodeJS Server"
+                  transport: "stdio"
+                  command: "node"
+                  args: ["/path/to/server.js"]
+                  authMode: "env_injection"
+                  initialCapabilities: ["tools", "resources"]
+              httpConnection:
+                value:
+                  name: "Remote HTTP Service"
+                  transport: "http"
+                  endpoint: "https://mcp.remote.example.com"
+                  authMode: "oauth"
+                  initialCapabilities: ["tools", "completions"]
+      responses:
+        201:
+          description: Connection successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+              examples:
+                success:
+                  value:
+                    id: "conn_def456"
+                    name: "Local NodeJS Server"
+                    status: "created"
+                    transport: "stdio"
+                    command: "node"
+                    args: ["/path/to/server.js"]
+                    authMode: "env_injection"
+                    initialCapabilities: ["tools", "resources"]
+                    createdAt: "2023-10-27T10:00:00Z"
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: Get details of a specific connection
+      description: Retrieves comprehensive information about a single MCP server connection.
+      operationId: getConnection
+      tags:
+        - Connections
+      responses:
+        200:
+          description: Detailed connection information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+              examples:
+                success:
+                  value:
+                    id: "conn_def456"
+                    name: "Local NodeJS Server"
+                    status: "operational"
+                    transport: "stdio"
+                    command: "node"
+                    args: ["/path/to/server.js"]
+                    authMode: "env_injection"
+                    initialCapabilities: ["tools", "resources"]
+                    negotiatedCapabilities: ["tools", "resources", "logging"]
+                    serverInfo:
+                      name: "MCP Dev Server"
+                      version: "1.0.0"
+                      protocolVersion: "1.0"
+                    createdAt: "2023-10-27T10:00:00Z"
+                    lastConnectedAt: "2023-10-27T10:05:00Z"
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete an MCP server connection
+      description: Removes a connection from the MCP Hub. If the connection is active, it will first be disconnected.
+      operationId: deleteConnection
+      tags:
+        - Connections
+      responses:
+        204:
+          description: Connection successfully deleted.
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/connect:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Open the transport layer for a connection
+      description: Initiates the underlying transport (e.g., starts a subprocess for stdio, establishes an HTTP session). This is the first step in activating a connection.
+      operationId: connectConnection
+      tags:
+        - Connections
+      responses:
+        200:
+          description: Connection transport opened successfully. Status will transition to 'connecting'.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionStatus'
+              examples:
+                success:
+                  value:
+                    id: "conn_def456"
+                    status: "connecting"
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/initialize:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Initialize an MCP server connection
+      description: Sends the MCP `initialize` message to the connected server, negotiating capabilities and retrieving server information. This transitions the connection to `initialized` or `operational`.
+      operationId: initializeConnection
+      tags:
+        - Connections
+      requestBody:
+        description: Optional capabilities to propose during initialization.
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapabilityNegotiationRequest'
+            examples:
+              negotiateSpecific:
+                value:
+                  capabilities: ["tools_v2", "resources_v1"]
+      responses:
+        200:
+          description: Connection initialized successfully, capabilities negotiated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+              examples:
+                success:
+                  value:
+                    id: "conn_def456"
+                    name: "Local NodeJS Server"
+                    status: "operational"
+                    transport: "stdio"
+                    command: "node"
+                    negotiatedCapabilities: ["tools", "resources", "logging"]
+                    serverInfo:
+                      name: "MCP Dev Server"
+                      version: "1.0.0"
+                      protocolVersion: "1.0"
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: Connection is not in a state to be initialized (e.g., not connected).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notConnected:
+                  value:
+                    code: "INITIALIZATION_FAILED"
+                    message: "Connection transport is not open. Cannot initialize."
+                    details:
+                      status: "disconnected"
+        500:
+          $ref: '#/components/responses/InternalServerError'
+          description: |
+            Could be a wrapper error (`INITIALIZATION_FAILED`) or a propagated `MCP_PROTOCOL_ERROR`.
+            See `components/schemas/ErrorResponse` for structure.
+
+  /connections/{connectionId}/disconnect:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Disconnect an MCP server
+      description: Gracefully shuts down the connection to the MCP server, closing the transport and clearing any associated state.
+      operationId: disconnectConnection
+      tags:
+        - Connections
+      responses:
+        200:
+          description: Connection successfully disconnected. Status will transition to 'disconnected'.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionStatus'
+              examples:
+                success:
+                  value:
+                    id: "conn_def456"
+                    status: "disconnected"
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/status:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: Get the current status of a connection
+      description: Retrieves the current operational status of a specific MCP server connection.
+      operationId: getConnectionStatus
+      tags:
+        - Connections
+      responses:
+        200:
+          description: Current connection status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionStatus'
+              examples:
+                success:
+                  value:
+                    id: "conn_def456"
+                    status: "operational"
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/auth/start:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Initiate an authentication flow for a connection
+      description: |
+        Starts the authentication process for a connection. For HTTP connections, this might involve initiating an OAuth2 flow.
+        For stdio connections, this could trigger an environment variable injection process based on the configured `authMode`.
+      operationId: startAuthFlow
+      tags:
+        - Auth
+      requestBody:
+        description: Authentication parameters, specific to the `authMode`.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthStartRequest'
+            examples:
+              oauthCode:
+                value:
+                  type: "oauth_code"
+                  code: "authorization_code_from_idp"
+                  redirectUri: "https://myfrontend.com/auth/callback"
+              apiKey:
+                value:
+                  type: "api_key"
+                  apiKey: "sk_xxxxxxxxxxxx"
+      responses:
+        200:
+          description: Authentication flow initiated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthStatus'
+              examples:
+                pending:
+                  value:
+                    status: "pending"
+                    message: "Waiting for token exchange or user consent."
+                    requiresAction: true
+                    action:
+                      type: "open_browser"
+                      url: "https://auth.example.com/oauth/authorize?..."
+                success:
+                  value:
+                    status: "authenticated"
+                    message: "Authentication successful."
+                    requiresAction: false
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: Authentication already active or not required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                alreadyAuthenticated:
+                  value:
+                    code: "AUTH_REQUIRED"
+                    message: "Connection is already authenticated."
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/auth/status:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: Get current authentication status for a connection
+      description: Checks the current authentication status of a specified connection.
+      operationId: getAuthStatus
+      tags:
+        - Auth
+      responses:
+        200:
+          description: Current authentication status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthStatus'
+              examples:
+                authenticated:
+                  value:
+                    status: "authenticated"
+                    message: "Authentication successful."
+                    requiresAction: false
+                expired:
+                  value:
+                    status: "expired"
+                    message: "Authentication token expired. Refresh required."
+                    requiresAction: true
+                    action:
+                      type: "refresh_token"
+                notAuthenticated:
+                  value:
+                    status: "unauthenticated"
+                    message: "Authentication required for this connection."
+                    requiresAction: true
+                    action:
+                      type: "start_auth_flow"
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/auth/refresh:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Refresh authentication tokens for a connection
+      description: Attempts to refresh expired authentication tokens for connections using refresh token mechanisms.
+      operationId: refreshAuth
+      tags:
+        - Auth
+      responses:
+        200:
+          description: Tokens successfully refreshed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthStatus'
+              examples:
+                success:
+                  value:
+                    status: "authenticated"
+                    message: "Tokens refreshed."
+                    requiresAction: false
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+          description: Refresh token invalid or expired.
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/auth:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    delete:
+      summary: Clear authentication for a connection
+      description: Revokes or clears any stored authentication credentials for the specified connection.
+      operationId: clearAuth
+      tags:
+        - Auth
+      responses:
+        204:
+          description: Authentication credentials successfully cleared.
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/secrets:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Inject secrets into a connection's environment
+      description: For `stdio` connections using `env_injection` auth mode, this endpoint securely provides secrets (e.g., API keys, tokens) to be injected into the subprocess environment.
+      operationId: injectSecrets
+      tags:
+        - Auth
+      requestBody:
+        description: Key-value pairs of secrets to inject.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecretInjectionRequest'
+            examples:
+              injectApiKey:
+                value:
+                  secrets:
+                    API_KEY: "sk_production_xxxxxxxxx"
+                    SERVICE_URL: "https://my-service.com"
+      responses:
+        200:
+          description: Secrets successfully injected into the connection's environment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+          description: Not applicable for connection's auth mode or transport type.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/capabilities:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: Get negotiated capabilities of a connection
+      description: Retrieves the list of capabilities that were successfully negotiated and are supported by the connected MCP server.
+      operationId: getNegotiatedCapabilities
+      tags:
+        - Capabilities
+      responses:
+        200:
+          description: List of negotiated capabilities.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CapabilitiesResponse'
+              examples:
+                success:
+                  value:
+                    capabilities:
+                      - name: "tools"
+                        version: "1.0"
+                        description: "Provides access to server-side tools."
+                      - name: "resources"
+                        version: "1.0"
+                        description: "Allows reading and subscribing to resources."
+                      - name: "logging"
+                        version: "1.0"
+                        description: "Supports logging messages from the server."
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: Connection not initialized, capabilities not yet negotiated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notInitialized:
+                  value:
+                    code: "INITIALIZATION_FAILED"
+                    message: "Connection not initialized. Capabilities are not yet available."
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/server-info:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: Get server information
+      description: Retrieves basic information about the connected MCP server, as provided during the `initialize` handshake.
+      operationId: getServerInfo
+      tags:
+        - Capabilities
+      responses:
+        200:
+          description: Server information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerInfo'
+              examples:
+                success:
+                  value:
+                    name: "MCP Dev Server"
+                    version: "1.0.0"
+                    protocolVersion: "1.0"
+                    capabilitiesUri: "https://mcp.dev/caps.json"
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: Connection not initialized, server info not yet available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notInitialized:
+                  value:
+                    code: "INITIALIZATION_FAILED"
+                    message: "Connection not initialized. Server information is not yet available."
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/tools:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: List available tools
+      description: Retrieves a list of all tools exposed by the connected MCP server. Requires the 'tools' capability.
+      operationId: listTools
+      tags:
+        - Tools
+      responses:
+        200:
+          description: A list of available tools.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tool'
+              examples:
+                success:
+                  value:
+                    - name: "readFile"
+                      description: "Reads content from a specified file path."
+                      inputSchema:
+                        type: "object"
+                        properties:
+                          path: { type: "string" }
+                        required: ["path"]
+                      outputSchema:
+                        type: "object"
+                        properties:
+                          content: { type: "string" }
+                    - name: "runCommand"
+                      description: "Executes a shell command."
+                      inputSchema:
+                        type: "object"
+                        properties:
+                          command: { type: "string" }
+                          args: { type: "array", items: { type: "string" } }
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: 'Connection not operational or "tools" capability not supported.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                capabilityMissing:
+                  value:
+                    code: "MCP_PROTOCOL_ERROR"
+                    message: "The 'tools' capability is not supported or the connection is not operational."
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/tools/{toolName}:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+      - $ref: '#/components/parameters/ToolName'
+    get:
+      summary: Get details of a specific tool
+      description: Retrieves the definition and schema for a single tool exposed by the connected MCP server.
+      operationId: getToolDetails
+      tags:
+        - Tools
+      responses:
+        200:
+          description: Details of the specified tool.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tool'
+              examples:
+                success:
+                  value:
+                    name: "readFile"
+                    description: "Reads content from a specified file path."
+                    inputSchema:
+                      type: "object"
+                      properties:
+                        path: { type: "string", description: "The path to the file." }
+                      required: ["path"]
+                    outputSchema:
+                      type: "object"
+                      properties:
+                        content: { type: "string", description: "The content of the file." }
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: 'Connection not operational or "tools" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/tools/{toolName}/call:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+      - $ref: '#/components/parameters/ToolName'
+    post:
+      summary: Call a specific tool
+      description: Executes a tool on the connected MCP server with the provided arguments. Requires the 'tools' capability.
+      operationId: callTool
+      tags:
+        - Tools
+      requestBody:
+        description: Arguments for the tool call, conforming to the tool's input schema.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToolCallRequest'
+            examples:
+              readFileExample:
+                value:
+                  arguments:
+                    path: "/src/main.ts"
+              runCommandExample:
+                value:
+                  arguments:
+                    command: "ls"
+                    args: ["-l", "/tmp"]
+      responses:
+        200:
+          description: Tool executed successfully, returning its output.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolCallResponse'
+              examples:
+                success:
+                  value:
+                    result:
+                      content: "export function hello() { console.log('Hello'); }"
+                commandOutput:
+                  value:
+                    result:
+                      stdout: "total 8\n-rw-r--r-- 1 user group 123 Jan 1 00:00 file.txt\n"
+                      stderr: ""
+                      exitCode: 0
+        400:
+          $ref: '#/components/responses/BadRequestError'
+          description: Invalid arguments provided for the tool.
+        404:
+          $ref: '#/components/responses/NotFoundError'
+          description: Connection or tool not found.
+        409:
+          description: 'Connection not operational or "tools" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+          description: |
+            Could be a wrapper error (`MCP_TOOL_CALL_FAILED`) or a propagated `MCP_PROTOCOL_ERROR`.
+            See `components/schemas/ErrorResponse` for structure.
+
+  /connections/{connectionId}/resources:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: List available resources
+      description: Retrieves a list of all resources exposed by the connected MCP server. Requires the 'resources' capability.
+      operationId: listResources
+      tags:
+        - Resources
+      responses:
+        200:
+          description: A list of available resources.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+              examples:
+                success:
+                  value:
+                    - id: "file:/user/project/README.md"
+                      name: "README.md"
+                      type: "file"
+                      description: "Main project documentation."
+                      mimeType: "text/markdown"
+                    - id: "env:NODE_ENV"
+                      name: "Node Environment"
+                      type: "environment_variable"
+                      description: "Current Node.js environment."
+                      mimeType: "text/plain"
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: 'Connection not operational or "resources" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/resources/read:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Read the content of a specific resource
+      description: Retrieves the content of a resource from the connected MCP server. Requires the 'resources' capability.
+      operationId: readResource
+      tags:
+        - Resources
+      requestBody:
+        description: Resource identifier and optional read parameters.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceReadRequest'
+            examples:
+              readFile:
+                value:
+                  resourceId: "file:/user/project/README.md"
+                  encoding: "utf-8"
+              readEnv:
+                value:
+                  resourceId: "env:NODE_ENV"
+      responses:
+        200:
+          description: Content of the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceReadResponse'
+              examples:
+                success:
+                  value:
+                    content: "# My Awesome Project\nThis is a sample project...\n"
+                    mimeType: "text/markdown"
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+          description: Connection or resource not found.
+        409:
+          description: 'Connection not operational or "resources" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+          description: |
+            Could be a wrapper error (`MCP_RESOURCE_READ_FAILED`) or a propagated `MCP_PROTOCOL_ERROR`.
+            See `components/schemas/ErrorResponse` for structure.
+
+  /connections/{connectionId}/resources/subscribe:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Subscribe to resource changes
+      description: Registers a subscription for changes to one or more resources. Updates will be pushed via the event stream. Requires the 'resources' capability.
+      operationId: subscribeResource
+      tags:
+        - Resources
+      requestBody:
+        description: Resource identifiers to subscribe to.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceSubscribeRequest'
+            examples:
+              subscribeFiles:
+                value:
+                  resourceIds:
+                    - "file:/user/project/src/index.ts"
+                    - "file:/user/project/package.json"
+      responses:
+        200:
+          description: Successfully subscribed to resources.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+          description: Connection or one of the resources not found.
+        409:
+          description: 'Connection not operational or "resources" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/resources/unsubscribe:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Unsubscribe from resource changes
+      description: Deregisters a subscription for changes to one or more resources. Requires the 'resources' capability.
+      operationId: unsubscribeResource
+      tags:
+        - Resources
+      requestBody:
+        description: Resource identifiers to unsubscribe from.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceUnsubscribeRequest'
+            examples:
+              unsubscribeFile:
+                value:
+                  resourceIds:
+                    - "file:/user/project/src/index.ts"
+      responses:
+        200:
+          description: Successfully unsubscribed from resources.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+          description: Connection or one of the resources not found.
+        409:
+          description: 'Connection not operational or "resources" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/prompts:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: List available prompt templates
+      description: Retrieves a list of prompt templates exposed by the connected MCP server. Requires the 'prompts' capability.
+      operationId: listPrompts
+      tags:
+        - Prompts
+      responses:
+        200:
+          description: A list of available prompt templates.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Prompt'
+              examples:
+                success:
+                  value:
+                    - name: "codeRefactor"
+                      description: "Refactor a given code snippet."
+                      inputSchema:
+                        type: "object"
+                        properties:
+                          code: { type: "string" }
+                          language: { type: "string", enum: ["typescript", "javascript"] }
+                        required: ["code", "language"]
+                    - name: "summarizeDoc"
+                      description: "Summarize a long document or text."
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: 'Connection not operational or "prompts" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/prompts/{promptName}/get:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+      - $ref: '#/components/parameters/PromptName'
+    post:
+      summary: Get a specific prompt template with variables
+      description: Retrieves the content of a named prompt template, optionally with variables filled in. Requires the 'prompts' capability.
+      operationId: getPrompt
+      tags:
+        - Prompts
+      requestBody:
+        description: Variables to substitute into the prompt template.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptGetRequest'
+            examples:
+              getCodeRefactorPrompt:
+                value:
+                  variables:
+                    code: "function add(a, b) { return a + b; }"
+                    language: "javascript"
+      responses:
+        200:
+          description: The filled-in prompt content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptGetResponse'
+              examples:
+                success:
+                  value:
+                    content: "Please refactor the following JavaScript code snippet to improve readability and performance:\n\n```javascript\nfunction add(a, b) { return a + b; }\n```"
+                    type: "markdown"
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+          description: Connection or prompt not found.
+        409:
+          description: 'Connection not operational or "prompts" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/completions:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Request a completion from the MCP server
+      description: Sends a completion request to the connected MCP server. Requires the 'completions' capability.
+      operationId: requestCompletion
+      tags:
+        - Completions
+      requestBody:
+        description: Details of the completion request (e.g., prompt, context, model).
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompletionRequest'
+            examples:
+              codeCompletion:
+                value:
+                  prompt: "Write a Python function to calculate factorial:"
+                  language: "python"
+                  temperature: 0.7
+                  maxTokens: 100
+                  stream: false
+      responses:
+        200:
+          description: The generated completion response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompletionResponse'
+              examples:
+                success:
+                  value:
+                    id: "comp_xyz123"
+                    text: |
+                      ```python
+                      def factorial(n):
+                          if n == 0:
+                              return 1
+                          else:
+                              return n * factorial(n-1)
+                      ```
+                    finishReason: "stop"
+                    tokensUsed: 50
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+          description: Connection not found.
+        409:
+          description: 'Connection not operational or "completions" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+          description: |
+            Could be a wrapper error (`MCP_COMPLETION_FAILED`) or a propagated `MCP_PROTOCOL_ERROR`.
+            See `components/schemas/ErrorResponse` for structure.
+
+  /connections/{connectionId}/logs:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+      - name: limit
+        in: query
+        description: Maximum number of log entries to return.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: offset
+        in: query
+        description: Number of log entries to skip for pagination.
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - name: level
+        in: query
+        description: Filter logs by minimum severity level.
+        schema:
+          type: string
+          enum: [ "debug", "info", "warn", "error" ]
+    get:
+      summary: Retrieve historical log entries for a connection
+      description: Fetches a paginated list of log messages from a specific MCP server connection. Requires the 'logging' capability.
+      operationId: getConnectionLogs
+      tags:
+        - Logs & Events
+      responses:
+        200:
+          description: A list of log entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LogEntry'
+              examples:
+                success:
+                  value:
+                    - id: "log_001"
+                      timestamp: "2023-10-27T10:05:01Z"
+                      level: "info"
+                      message: "Server started successfully."
+                      connectionId: "conn_def456"
+                    - id: "log_002"
+                      timestamp: "2023-10-27T10:05:15Z"
+                      level: "warn"
+                      message: "Deprecated API usage detected."
+                      connectionId: "conn_def456"
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: 'Connection not operational or "logging" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/events:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+      - name: limit
+        in: query
+        description: Maximum number of event entries to return.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: offset
+        in: query
+        description: Number of event entries to skip for pagination.
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - name: type
+        in: query
+        description: Filter events by type prefix (e.g., "connection.", "tools.").
+        schema:
+          type: string
+    get:
+      summary: Retrieve historical event entries for a connection
+      description: Fetches a paginated list of structured events from a specific MCP server connection, or Hub-generated events related to it.
+      operationId: getConnectionEvents
+      tags:
+        - Logs & Events
+      responses:
+        200:
+          description: A list of event entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+              examples:
+                success:
+                  value:
+                    - eventId: "evt_001"
+                      connectionId: "conn_def456"
+                      type: "connection.status_changed"
+                      timestamp: "2023-10-27T10:05:00Z"
+                      payload:
+                        oldStatus: "created"
+                        newStatus: "connecting"
+                    - eventId: "evt_002"
+                      connectionId: "conn_def456"
+                      type: "resources.updated"
+                      timestamp: "2023-10-27T10:10:30Z"
+                      payload:
+                        resourceId: "file:/user/project/README.md"
+                        changes:
+                          - type: "content_changed"
+                            linesModified: 5
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/stream:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: Stream real-time events for a connection
+      description: |
+        Establishes a Server-Sent Events (SSE) or WebSocket connection to stream real-time events
+        from the MCP server and Hub-generated events related to the connection.
+
+        **Supported transports:**
+        - `text/event-stream` for SSE (default if `Accept` header specifies it).
+        - `application/json` over WebSocket (if `Upgrade: websocket` header is sent).
+
+        Events are normalized into a common format before being streamed.
+      operationId: streamConnectionEvents
+      tags:
+        - Logs & Events
+      responses:
+        200:
+          description: A continuous stream of events.
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/EventStreamMessage'
+              examples:
+                sseMessage:
+                  value: |
+                    event: message
+                    data: {"eventId":"evt_stream_001","connectionId":"conn_def456","type":"logging.message","timestamp":"2023-10-27T10:15:00Z","payload":{"level":"info","message":"Processing request X..."}}
+
+                    event: message
+                    data: {"eventId":"evt_stream_002","connectionId":"conn_def456","type":"request.progress","timestamp":"2023-10-27T10:15:05Z","payload":{"requestId":"req_tool_abc","percentage":50,"message":"Executing tool step 1 of 2"}}
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /requests/{requestId}:
+    parameters:
+      - $ref: '#/components/parameters/RequestId'
+    get:
+      summary: Get status and result of an asynchronous request
+      description: Retrieves the current status and, if completed, the result of an asynchronous request initiated through the Hub (e.g., a long-running tool call or completion).
+      operationId: getRequestStatus
+      tags:
+        - Requests
+      responses:
+        200:
+          description: Status and result of the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestStatus'
+              examples:
+                pending:
+                  value:
+                    requestId: "req_tool_abc"
+                    connectionId: "conn_def456"
+                    status: "pending"
+                    type: "tool_call"
+                    progress:
+                      percentage: 25
+                      message: "Connecting to external service..."
+                    createdAt: "2023-10-27T10:15:00Z"
+                completed:
+                  value:
+                    requestId: "req_tool_abc"
+                    connectionId: "conn_def456"
+                    status: "completed"
+                    type: "tool_call"
+                    result:
+                      content: "Tool execution finished successfully."
+                    createdAt: "2023-10-27T10:15:00Z"
+                    completedAt: "2023-10-27T10:15:10Z"
+                failed:
+                  value:
+                    requestId: "req_tool_abc"
+                    connectionId: "conn_def456"
+                    status: "failed"
+                    type: "tool_call"
+                    error:
+                      code: "MCP_TOOL_CALL_FAILED"
+                      message: "Tool 'read_file' failed due to invalid path."
+                      details:
+                        originalError: "ENOENT: no such file or directory, open '/nonexistent.txt'"
+                    createdAt: "2023-10-27T10:15:00Z"
+                    completedAt: "2023-10-27T10:15:02Z"
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /requests/{requestId}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/RequestId'
+    post:
+      summary: Cancel an ongoing asynchronous request
+      description: Attempts to cancel a request that is currently in a 'pending' or 'in_progress' state.
+      operationId: cancelRequest
+      tags:
+        - Requests
+      responses:
+        200:
+          description: Request cancellation initiated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestCancelResponse'
+              examples:
+                success:
+                  value:
+                    requestId: "req_tool_abc"
+                    message: "Cancellation request received."
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: Request cannot be cancelled (e.g., already completed or failed).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                alreadyCompleted:
+                  value:
+                    code: "REQUEST_CANCELLED"
+                    message: "Request already completed or failed. Cannot cancel."
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /connections/{connectionId}/roots:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: Get configured file system roots for a connection
+      description: Retrieves the list of file system roots that the MCP server is allowed to access or manage. Requires the 'roots' capability.
+      operationId: getRoots
+      tags:
+        - Roots
+      responses:
+        200:
+          description: A list of configured roots.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Root'
+              examples:
+                success:
+                  value:
+                    - id: "root_proj_1"
+                      path: "/Users/user/Projects/my-app"
+                      readOnly: false
+                    - id: "root_data_2"
+                      path: "/var/data/logs"
+                      readOnly: true
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: 'Connection not operational or "roots" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      summary: Update or set file system roots for a connection
+      description: Updates the list of file system roots for a connection. This operation typically replaces the existing roots. Requires the 'roots' capability.
+      operationId: updateRoots
+      tags:
+        - Roots
+      requestBody:
+        description: The new list of roots to configure.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateRootRequest'
+            examples:
+              setNewRoots:
+                value:
+                  - path: "/Users/user/Projects/new-app"
+                    readOnly: false
+                  - path: "/shared/configs"
+                    readOnly: true
+      responses:
+        200:
+          description: Roots successfully updated.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Root'
+              examples:
+                success:
+                  value:
+                    - id: "root_new_1"
+                      path: "/Users/user/Projects/new-app"
+                      readOnly: false
+                    - id: "root_new_2"
+                      path: "/shared/configs"
+                      readOnly: true
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: 'Connection not operational or "roots" capability not supported.'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  parameters:
+    ConnectionId:
+      name: connectionId
+      in: path
+      description: Unique identifier of the MCP server connection.
+      required: true
+      schema:
+        type: string
+        pattern: "^conn_[a-zA-Z0-9]{6,}"
+      examples:
+        example:
+          value: "conn_abc123"
+    ToolName:
+      name: toolName
+      in: path
+      description: The name of the tool to interact with.
+      required: true
+      schema:
+        type: string
+        pattern: "^[a-zA-Z0-9_-]+$"
+      examples:
+        example:
+          value: "readFile"
+    PromptName:
+      name: promptName
+      in: path
+      description: The name of the prompt template.
+      required: true
+      schema:
+        type: string
+        pattern: "^[a-zA-Z0-9_-]+$"
+      examples:
+        example:
+          value: "codeRefactor"
+    RequestId:
+      name: requestId
+      in: path
+      description: Unique identifier of the asynchronous request.
+      required: true
+      schema:
+        type: string
+        pattern: "^req_[a-zA-Z0-9]{6,}"
+      examples:
+        example:
+          value: "req_tool_abc"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained after authentication.
+    OAuth2:
+      type: oauth2
+      description: OAuth2 flow for authenticating with the MCP Hub.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/oauth/authorize
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            read: Read access to MCP Hub resources
+            write: Write access to MCP Hub resources
+            admin: Administrative access
+  responses:
+    UnauthorizedError:
+      description: Authentication is required or has failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            unauthorized:
+              value:
+                code: "AUTH_REQUIRED"
+                message: "Authentication token is missing or invalid."
+    NotFoundError:
+      description: The specified resource (connection, tool, etc.) was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            notFound:
+              value:
+                code: "CONNECTION_NOT_FOUND"
+                message: "Connection with ID 'conn_invalid' not found."
+    BadRequestError:
+      description: The request body or parameters are invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            badRequest:
+              value:
+                code: "INVALID_REQUEST_PAYLOAD"
+                message: "Invalid input. 'transport' field is required."
+    InternalServerError:
+      description: An unexpected internal server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            internalError:
+              value:
+                code: "INTERNAL_SERVER_ERROR"
+                message: "An unexpected error occurred processing your request."
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A success message.
+          example: "Operation completed successfully."
+
+    # General Error Model
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: A unique error code for programmatic handling.
+          enum:
+            - CONNECTION_NOT_FOUND
+            - INITIALIZATION_FAILED
+            - AUTH_REQUIRED
+            - AUTH_EXPIRED
+            - REQUEST_TIMEOUT
+            - REQUEST_CANCELLED
+            - MCP_PROTOCOL_ERROR
+            - MCP_TOOL_CALL_FAILED
+            - MCP_RESOURCE_READ_FAILED
+            - MCP_COMPLETION_FAILED
+            - INVALID_REQUEST_PAYLOAD
+            - INTERNAL_SERVER_ERROR
+            - CAPABILITY_NOT_SUPPORTED
+        message:
+          type: string
+          description: A human-readable message describing the error.
+        details:
+          oneOf:
+            - $ref: '#/components/schemas/WrapperErrorDetails'
+            - $ref: '#/components/schemas/MCPProtocolErrorDetails'
+            - type: object # For any other arbitrary details
+          description: Structured details about the error, often including original MCP error information.
+          nullable: true
+      examples:
+        connectionNotFound:
+          value:
+            code: "CONNECTION_NOT_FOUND"
+            message: "Connection with ID 'conn_nonexistent' not found."
+        initializationFailed:
+          value:
+            code: "INITIALIZATION_FAILED"
+            message: "Failed to initialize MCP server 'My Dev Server'."
+            details:
+              reason: "Transport closed unexpectedly during initialization."
+        mcpToolCallFailed:
+          value:
+            code: "MCP_TOOL_CALL_FAILED"
+            message: "Tool 'read_file' failed."
+            details:
+              toolName: "read_file"
+              originalError:
+                code: -32603
+                message: "File not found: /path/to/nonexistent.txt"
+                data:
+                  filePath: "/path/to/nonexistent.txt"
+
+    WrapperErrorDetails:
+      type: object
+      description: Details for errors originating from the MCP Hub wrapper.
+      properties:
+        reason:
+          type: string
+          description: A specific reason for the wrapper error.
+        status:
+          type: string
+          description: The connection status at the time of the error.
+        traceId:
+          type: string
+          description: An identifier for tracing the request through the system.
+    MCPProtocolErrorDetails:
+      type: object
+      description: Details for errors originating from the MCP server, propagated through the Hub.
+      properties:
+        code:
+          type: integer
+          description: The original JSON-RPC error code from the MCP server.
+        message:
+          type: string
+          description: The original JSON-RPC error message from the MCP server.
+        data:
+          type: object
+          description: Additional data provided by the MCP server's error response.
+          nullable: true
+        originalError:
+          type: string
+          description: The raw error message or stack trace if available.
+          nullable: true
+
+    # Connection Models
+    ConnectionSummary:
+      type: object
+      description: A high-level overview of an MCP server connection.
+      required:
+        - id
+        - name
+        - status
+        - transport
+        - endpoint
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the connection.
+          pattern: "^conn_[a-zA-Z0-9]{6,}$"
+          example: "conn_abc123"
+        name:
+          type: string
+          description: A user-friendly name for the connection.
+          example: "My Local Dev Server"
+        status:
+          type: string
+          description: The current status of the connection.
+          enum: [ "created", "connecting", "initialized", "operational", "disconnected", "error" ]
+          example: "operational"
+        transport:
+          type: string
+          description: The transport mechanism used for this connection.
+          enum: ["stdio", "http"]
+          example: "stdio"
+        endpoint:
+          type: string
+          description: The endpoint or command used to establish the connection.
+          example: "node mcp-server.js"
+        authMode:
+          type: string
+          description: The authentication mode configured for the connection.
+          enum: ["none", "oauth", "bearer", "env_injection", "api_key"]
+          example: "env_injection"
+
+    Connection:
+      allOf:
+        - $ref: '#/components/schemas/ConnectionSummary'
+        - type: object
+          properties:
+            command:
+              type: string
+              description: The command used to launch stdio subprocess (if transport is 'stdio').
+              nullable: true
+              example: "node"
+            args:
+              type: array
+              items:
+                type: string
+              description: Arguments passed to the command (if transport is 'stdio').
+              nullable: true
+              example: ["/path/to/server.js", "--port", "8081"]
+            initialCapabilities:
+              type: array
+              items:
+                type: string
+              description: Capabilities requested during initial connection.
+              example: ["tools", "resources"]
+            negotiatedCapabilities:
+              type: array
+              items:
+                $ref: '#/components/schemas/Capability'
+              description: Capabilities successfully negotiated with the MCP server.
+              nullable: true
+            serverInfo:
+              $ref: '#/components/schemas/ServerInfo'
+              description: Information provided by the MCP server during initialization.
+              nullable: true
+            createdAt:
+              type: string
+              format: date-time
+              description: Timestamp when the connection was created in the Hub.
+              example: "2023-10-27T10:00:00Z"
+            lastConnectedAt:
+              type: string
+              format: date-time
+              description: Timestamp of the last successful connection.
+              nullable: true
+              example: "2023-10-27T10:05:00Z"
+            lastDisconnectedAt:
+              type: string
+              format: date-time
+              description: Timestamp of the last disconnection.
+              nullable: true
+              example: "2023-10-27T10:30:00Z"
+            errorDetails:
+              $ref: '#/components/schemas/ErrorResponse'
+              description: Last error encountered for the connection if status is 'error'.
+              nullable: true
+
+    ConnectionCreateRequest:
+      type: object
+      required:
+        - name
+        - transport
+        - authMode
+      properties:
+        name:
+          type: string
+          description: A user-friendly name for the connection.
+          example: "My New MCP Service"
+        transport:
+          type: string
+          description: The transport mechanism to use for this connection.
+          enum: ["stdio", "http"]
+          example: "http"
+        endpoint:
+          type: string
+          description: The HTTP endpoint URL if `transport` is 'http'.
+          format: uri
+          nullable: true
+          example: "https://my-mcp-service.com/api"
+        command:
+          type: string
+          description: The executable command if `transport` is 'stdio'.
+          nullable: true
+          example: "python"
+        args:
+          type: array
+          items:
+            type: string
+          description: Arguments to pass to the command if `transport` is 'stdio'.
+          nullable: true
+          example: ["server.py", "--port", "8080"]
+        authMode:
+          type: string
+          description: The authentication mode required by the MCP server.
+          enum: ["none", "oauth", "bearer", "env_injection", "api_key"]
+          example: "oauth"
+        initialCapabilities:
+          type: array
+          items:
+            type: string
+          description: Optional list of desired capabilities to propose during initial handshake.
+          example: ["tools", "completions"]
+
+    ConnectionStatus:
+      type: object
+      required:
+        - id
+        - status
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the connection.
+          pattern: "^conn_[a-zA-Z0-9]{6,}$"
+          example: "conn_abc123"
+        status:
+          type: string
+          description: The current status of the connection.
+          enum: [ "created", "connecting", "initialized", "operational", "disconnected", "error" ]
+          example: "operational"
+        lastStatusChangeAt:
+          type: string
+          format: date-time
+          description: Timestamp of the last status change.
+          example: "2023-10-27T10:05:00Z"
+
+    # Auth Models
+    AuthStartRequest:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          description: The type of authentication flow to start.
+          enum: ["oauth_code", "api_key", "bearer_token", "username_password"]
+          example: "oauth_code"
+        code:
+          type: string
+          description: Authorization code from an OAuth provider (for `oauth_code` type).
+          nullable: true
+        redirectUri:
+          type: string
+          format: uri
+          description: Redirect URI used in the OAuth flow (for `oauth_code` type).
+          nullable: true
+        apiKey:
+          type: string
+          description: API key to use for authentication (for `api_key` type).
+          nullable: true
+        token:
+          type: string
+          description: Bearer token to use for authentication (for `bearer_token` type).
+          nullable: true
+        username:
+          type: string
+          description: Username for basic auth (for `username_password` type).
+          nullable: true
+        password:
+          type: string
+          description: Password for basic auth (for `username_password` type).
+          nullable: true
+          writeOnly: true
+
+    AuthStatus:
+      type: object
+      required:
+        - status
+        - message
+        - requiresAction
+      properties:
+        status:
+          type: string
+          description: Current authentication state.
+          enum: ["unauthenticated", "pending", "authenticated", "expired", "error"]
+          example: "authenticated"
+        message:
+          type: string
+          description: A descriptive message about the auth status.
+          example: "Authentication successful."
+        requiresAction:
+          type: boolean
+          description: True if the client needs to perform an action to proceed with authentication.
+          example: false
+        action:
+          type: object
+          description: Details about the required client action (e.g., redirect URL for OAuth).
+          nullable: true
+          properties:
+            type:
+              type: string
+              enum: ["open_browser", "refresh_token", "start_auth_flow"]
+              example: "open_browser"
+            url:
+              type: string
+              format: uri
+              nullable: true
+              example: "https://auth.example.com/oauth/authorize?client_id=..."
+            method:
+              type: string
+              nullable: true
+              example: "GET"
+            payload:
+              type: object
+              nullable: true
+              description: Optional payload for actions like `refresh_token`.
+
+    AuthRefreshRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          description: The refresh token to use for renewing access.
+          nullable: true # If the hub handles refresh token persistence
+
+    SecretInjectionRequest:
+      type: object
+      required:
+        - secrets
+      properties:
+        secrets:
+          type: object
+          additionalProperties:
+            type: string
+          description: Key-value pairs of secrets to inject into the subprocess environment.
+          example:
+            API_KEY: "sk_dev_abcdef12345"
+            DEBUG_MODE: "true"
+
+    # Capability Models
+    CapabilityNegotiationRequest:
+      type: object
+      properties:
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: A list of desired capabilities to propose.
+          example: ["tools_v2", "resources_v1"]
+
+    Capability:
+      type: object
+      required:
+        - name
+        - version
+      properties:
+        name:
+          type: string
+          description: The name of the capability (e.g., "tools", "resources").
+          example: "tools"
+        version:
+          type: string
+          description: The version of the capability supported.
+          example: "1.0"
+        description:
+          type: string
+          description: A brief description of what the capability offers.
+          nullable: true
+          example: "Provides access to server-side tools."
+
+    CapabilitiesResponse:
+      type: object
+      required:
+        - capabilities
+      properties:
+        capabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Capability'
+          description: The list of negotiated and supported capabilities.
+
+    ServerInfo:
+      type: object
+      required:
+        - name
+        - version
+        - protocolVersion
+      properties:
+        name:
+          type: string
+          description: The name of the MCP server.
+          example: "My Awesome MCP Server"
+        version:
+          type: string
+          description: The version of the MCP server software.
+          example: "1.2.0"
+        protocolVersion:
+          type: string
+          description: The MCP protocol version implemented by the server.
+          example: "1.0"
+        capabilitiesUri:
+          type: string
+          format: uri
+          description: An optional URI pointing to a capabilities document.
+          nullable: true
+
+    # Tool Models
+    Tool:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          description: The unique name of the tool.
+          example: "readFile"
+        description:
+          type: string
+          description: A human-readable description of what the tool does.
+          example: "Reads the content of a file from the file system."
+        inputSchema:
+          type: object
+          description: JSON Schema defining the expected input arguments for the tool.
+          nullable: true
+          example:
+            type: "object"
+            properties:
+              path: { type: "string", description: "The path to the file." }
+            required: ["path"]
+        outputSchema:
+          type: object
+          description: JSON Schema defining the expected output structure of the tool.
+          nullable: true
+          example:
+            type: "object"
+            properties:
+              content: { type: "string", description: "The content of the file." }
+
+    ToolCallRequest:
+      type: object
+      required:
+        - arguments
+      properties:
+        arguments:
+          type: object
+          description: The arguments to pass to the tool, conforming to its `inputSchema`.
+          additionalProperties: true
+          example:
+            path: "/path/to/my_file.txt"
+            encoding: "utf-8"
+        requestId:
+          type: string
+          description: Optional client-provided ID for tracking the request. If not provided, Hub generates one.
+          pattern: "^req_[a-zA-Z0-9]{6,}$"
+          nullable: true
+
+    ToolCallResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          description: The result of the tool call, conforming to its `outputSchema`.
+          additionalProperties: true
+          example:
+            content: "Hello, world!"
+            bytesRead: 13
+        requestId:
+          type: string
+          description: The ID of the asynchronous request (either client-provided or Hub-generated).
+          pattern: "^req_[a-zA-Z0-9]{6,}$"
+
+    # Resource Models
+    Resource:
+      type: object
+      required:
+        - id
+        - name
+        - type
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the resource (e.g., 'file:/path/to/file.txt').
+          example: "file:/user/project/README.md"
+        name:
+          type: string
+          description: A user-friendly name for the resource.
+          example: "README.md"
+        type:
+          type: string
+          description: The type of resource (e.g., 'file', 'environment_variable', 'database_table').
+          example: "file"
+        description:
+          type: string
+          description: A brief description of the resource.
+          nullable: true
+        mimeType:
+          type: string
+          description: The MIME type of the resource content, if applicable.
+          nullable: true
+          example: "text/markdown"
+        readOnly:
+          type: boolean
+          description: Indicates if the resource can only be read, not modified.
+          default: true
+        metadata:
+          type: object
+          description: Additional resource-specific metadata.
+          nullable: true
+
+    ResourceReadRequest:
+      type: object
+      required:
+        - resourceId
+      properties:
+        resourceId:
+          type: string
+          description: The unique identifier of the resource to read.
+          example: "file:/user/project/README.md"
+        encoding:
+          type: string
+          description: The desired encoding for textual resources (e.g., 'utf-8', 'base64').
+          default: "utf-8"
+        requestId:
+          type: string
+          description: Optional client-provided ID for tracking the request.
+          pattern: "^req_[a-zA-Z0-9]{6,}$"
+          nullable: true
+
+    ResourceReadResponse:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: The content of the resource, possibly base64 encoded depending on `encoding`.
+          example: "IyBNyBBd2Vzb21lIFByb2plY3Q="
+        mimeType:
+          type: string
+          description: The MIME type of the content.
+          nullable: true
+          example: "text/markdown"
+        encoding:
+          type: string
+          description: The encoding used for the content.
+          example: "utf-8"
+        requestId:
+          type: string
+          description: The ID of the asynchronous request.
+          pattern: "^req_[a-zA-Z0-9]{6,}$"
+
+    ResourceSubscribeRequest:
+      type: object
+      required:
+        - resourceIds
+      properties:
+        resourceIds:
+          type: array
+          items:
+            type: string
+          description: A list of unique identifiers for resources to subscribe to.
+          example: ["file:/user/project/src/index.ts", "env:MY_VAR"]
+
+    ResourceUnsubscribeRequest:
+      type: object
+      required:
+        - resourceIds
+      properties:
+        resourceIds:
+          type: array
+          items:
+            type: string
+          description: A list of unique identifiers for resources to unsubscribe from.
+          example: ["file:/user/project/src/index.ts"]
+
+    # Prompt Models
+    Prompt:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          description: The unique name of the prompt template.
+          example: "codeRefactor"
+        description:
+          type: string
+          description: A human-readable description of what the prompt is for.
+          example: "Refactor a given code snippet for readability."
+        inputSchema:
+          type: object
+          description: JSON Schema defining the expected input variables for the prompt.
+          nullable: true
+          example:
+            type: "object"
+            properties:
+              code: { type: "string", description: "The code to refactor." }
+              language: { type: "string", enum: ["python", "typescript"] }
+            required: ["code", "language"]
+
+    PromptGetRequest:
+      type: object
+      properties:
+        variables:
+          type: object
+          description: Key-value pairs of variables to substitute into the prompt template.
+          additionalProperties: true
+          example:
+            code: "function sum(a, b) { return a + b; }"
+            language: "javascript"
+
+    PromptGetResponse:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: The rendered content of the prompt, with variables substituted.
+          example: "Refactor the following JavaScript code: `function sum(a, b) { return a + b; }`"
+        type:
+          type: string
+          description: The type or format of the content (e.g., 'text', 'markdown').
+          default: "text"
+
+    # Completion Models
+    CompletionRequest:
+      type: object
+      required:
+        - prompt
+      properties:
+        prompt:
+          type: string
+          description: The input text or instruction for the completion.
+          example: "Write a short story about a cat programmer."
+        language:
+          type: string
+          description: The programming language for code completions.
+          nullable: true
+          example: "typescript"
+        maxTokens:
+          type: integer
+          description: The maximum number of tokens to generate.
+          minimum: 1
+          example: 150
+        temperature:
+          type: number
+          format: float
+          description: Sampling temperature for creativity (0.0 to 1.0).
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.7
+        stream:
+          type: boolean
+          description: If true, completion will be streamed via the event channel.
+          default: false
+        requestId:
+          type: string
+          description: Optional client-provided ID for tracking the request.
+          pattern: "^req_[a-zA-Z0-9]{6,}$"
+          nullable: true
+
+    CompletionResponse:
+      type: object
+      required:
+        - id
+        - text
+        - finishReason
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the completion.
+          example: "comp_xyz123"
+        text:
+          type: string
+          description: The generated completion text.
+          example: "Once upon a time, there was a cat named Byte..."
+        finishReason:
+          type: string
+          description: The reason the generation finished.
+          enum: ["stop", "length", "content_filter", "error"]
+          example: "stop"
+        tokensUsed:
+          type: integer
+          description: The number of tokens used in the completion.
+          nullable: true
+        requestId:
+          type: string
+          description: The ID of the asynchronous request.
+          pattern: "^req_[a-zA-Z0-9]{6,}$"
+
+    # Log & Event Models
+    LogEntry:
+      type: object
+      required:
+        - id
+        - timestamp
+        - level
+        - message
+        - connectionId
+      properties:
+        id:
+          type: string
+          description: Unique ID of the log entry.
+          example: "log_001"
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of the log event.
+          example: "2023-10-27T10:05:01Z"
+        level:
+          type: string
+          description: Severity level of the log message.
+          enum: ["debug", "info", "warn", "error"]
+          example: "info"
+        message:
+          type: string
+          description: The log message.
+          example: "Server initialized successfully."
+        connectionId:
+          type: string
+          description: ID of the connection this log pertains to.
+          pattern: "^conn_[a-zA-Z0-9]{6,}$"
+          example: "conn_def456"
+        source:
+          type: string
+          description: Origin of the log (e.g., 'mcp-server', 'mcp-hub-runtime').
+          nullable: true
+        metadata:
+          type: object
+          description: Additional structured data associated with the log.
+          nullable: true
+
+    Event:
+      type: object
+      required:
+        - eventId
+        - connectionId
+        - type
+        - timestamp
+        - payload
+      properties:
+        eventId:
+          type: string
+          description: Unique ID for this event.
+          example: "evt_001"
+        connectionId:
+          type: string
+          description: ID of the connection this event pertains to.
+          pattern: "^conn_[a-zA-Z0-9]{6,}$"
+          example: "conn_def456"
+        type:
+          type: string
+          description: Categorized type of the event (e.g., "connection.status_changed", "resources.updated").
+          example: "connection.status_changed"
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the event occurred.
+          example: "2023-10-27T10:05:00Z"
+        payload:
+          type: object
+          description: Structured data specific to the event type.
+          additionalProperties: true
+          example:
+            oldStatus: "created"
+            newStatus: "connecting"
+        requestId:
+          type: string
+          description: Optional ID of the request that triggered this event.
+          pattern: "^req_[a-zA-Z0-9]{6,}$"
+          nullable: true
+
+    EventStreamMessage:
+      type: object
+      description: Structure for a single event message in an SSE stream.
+      required:
+        - event
+        - data
+      properties:
+        event:
+          type: string
+          description: The event type. Always "message" for generic events.
+          enum: ["message", "ping"]
+          example: "message"
+        data:
+          $ref: '#/components/schemas/Event'
+          description: The actual event payload.
+
+    # Request Tracking Models
+    RequestStatus:
+      type: object
+      required:
+        - requestId
+        - connectionId
+        - status
+        - type
+        - createdAt
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for the asynchronous request.
+          pattern: "^req_[a-zA-Z0-9]{6,}$"
+          example: "req_tool_abc"
+        connectionId:
+          type: string
+          description: The connection ID associated with this request.
+          pattern: "^conn_[a-zA-Z0-9]{6,}$"
+          example: "conn_def456"
+        status:
+          type: string
+          description: Current status of the request.
+          enum: ["pending", "in_progress", "completed", "failed", "cancelled"]
+          example: "in_progress"
+        type:
+          type: string
+          description: The type of operation this request represents.
+          enum: ["tool_call", "completion", "resource_read", "custom"]
+          example: "tool_call"
+        progress:
+          type: object
+          description: Optional progress details for long-running requests.
+          nullable: true
+          properties:
+            percentage:
+              type: integer
+              minimum: 0
+              maximum: 100
+              description: Completion percentage.
+            message:
+              type: string
+              description: A human-readable progress message.
+            metadata:
+              type: object
+              description: Additional progress-related data.
+        result:
+          type: object
+          description: The final result of the operation if status is 'completed'.
+          additionalProperties: true
+          nullable: true
+        error:
+          $ref: '#/components/schemas/ErrorResponse'
+          description: Error details if status is 'failed'.
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the request was created.
+          example: "2023-10-27T10:15:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the last status or progress update.
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the request reached a final state (completed, failed, cancelled).
+          nullable: true
+
+    RequestCancelResponse:
+      type: object
+      required:
+        - requestId
+        - message
+      properties:
+        requestId:
+          type: string
+          description: The ID of the request that was targeted for cancellation.
+          pattern: "^req_[a-zA-Z0-9]{6,}$"
+          example: "req_tool_abc"
+        message:
+          type: string
+          description: Confirmation message regarding the cancellation attempt.
+          example: "Cancellation request received."
+
+    # Roots Models
+    Root:
+      type: object
+      required:
+        - id
+        - path
+        - readOnly
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the root.
+          example: "root_proj_1"
+        path:
+          type: string
+          description: The absolute path to the file system root on the server.
+          example: "/Users/user/Projects/my-app"
+        readOnly:
+          type: boolean
+          description: If true, the server can only read from this root, not write.
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the root was configured.
+          nullable: true
+
+    UpdateRootRequest:
+      type: object
+      required:
+        - path
+        - readOnly
+      properties:
+        path:
+          type: string
+          description: The absolute path to the file system root on the server.
+          example: "/Users/user/Projects/new-app"
+        readOnly:
+          type: boolean
+          description: If true, the server can only read from this root, not write.
+          example: false
+```
