@@ -1,0 +1,10 @@
+# GetConnectionPromptRequest
+
+
+## Fields
+
+| Field                                                                | Type                                                                 | Required                                                             | Description                                                          | Example                                                              |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `connectionId`                                                       | *String*                                                             | :heavy_check_mark:                                                   | Unique identifier of the connection.                                 |                                                                      |
+| `promptName`                                                         | *String*                                                             | :heavy_check_mark:                                                   | Name of the prompt template.                                         |                                                                      |
+| `promptGetBody`                                                      | [Optional\<PromptGetBody>](../../models/components/PromptGetBody.md) | :heavy_minus_sign:                                                   | N/A                                                                  | {<br/>"arguments": {<br/>"targetLanguage": "fr"<br/>}<br/>}          |
