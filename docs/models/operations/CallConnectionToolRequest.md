@@ -1,0 +1,10 @@
+# CallConnectionToolRequest
+
+
+## Fields
+
+| Field                                                                       | Type                                                                        | Required                                                                    | Description                                                                 | Example                                                                     |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `connectionId`                                                              | *String*                                                                    | :heavy_check_mark:                                                          | Unique identifier of the connection.                                        |                                                                             |
+| `toolName`                                                                  | *String*                                                                    | :heavy_check_mark:                                                          | Name of the MCP tool to invoke.                                             |                                                                             |
+| `toolCallBody`                                                              | [ToolCallBody](../../models/components/ToolCallBody.md)                     | :heavy_check_mark:                                                          | N/A                                                                         | {<br/>"arguments": {<br/>"path": "/docs/readme.md"<br/>},<br/>"requestId": "req-tool-001"<br/>} |

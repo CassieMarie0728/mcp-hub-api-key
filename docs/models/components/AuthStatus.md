@@ -1,0 +1,11 @@
+# AuthStatus
+
+
+## Fields
+
+| Field                                                                                     | Type                                                                                      | Required                                                                                  | Description                                                                               |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `authenticated`                                                                           | *Optional\<Boolean>*                                                                      | :heavy_minus_sign:                                                                        | N/A                                                                                       |
+| `authType`                                                                                | [JsonNullable\<AuthType>](../../models/components/AuthType.md)                            | :heavy_minus_sign:                                                                        | N/A                                                                                       |
+| `expiresAt`                                                                               | [OffsetDateTime](https://docs.oracle.com/javase/8/docs/api/java/time/OffsetDateTime.html) | :heavy_minus_sign:                                                                        | N/A                                                                                       |
+| `scopes`                                                                                  | List\<*String*>                                                                           | :heavy_minus_sign:                                                                        | N/A                                                                                       |

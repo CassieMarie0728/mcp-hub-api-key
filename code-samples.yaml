@@ -1,0 +1,257 @@
+overlay: 1.0.0
+info:
+  title: CodeSamples overlay for java target
+  version: 0.0.0
+actions:
+  - target: $["paths"]["/auth/login"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "postLogin"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.AuthLoginBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.PostLoginResponse;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        AuthLoginBody req = AuthLoginBody.builder()\n                .username(\"john.doe\")\n                .password(\"secret123\")\n                .build();\n\n        PostLoginResponse res = sdk.auth().postLogin()\n                .request(req)\n                .call();\n\n        if (res.inlineResponse2002().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/auth/logout"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "postLogout"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.PostLogoutResponse;\nimport org.openapis.openapi.models.operations.PostLogoutSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        PostLogoutResponse res = sdk.auth().postLogout()\n                .security(PostLogoutSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.inlineResponse2001().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/auth/me"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getCurrentUser"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetCurrentUserResponse;\nimport org.openapis.openapi.models.operations.GetCurrentUserSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetCurrentUserResponse res = sdk.auth().getCurrentUser()\n                .security(GetCurrentUserSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.inlineResponse2003().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/capabilities"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listCapabilities"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListCapabilitiesResponse;\nimport org.openapis.openapi.models.operations.ListCapabilitiesSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListCapabilitiesResponse res = sdk.capabilities().listCapabilities()\n                .security(ListCapabilitiesSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.capabilities().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/completions"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "postCompletion"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport java.util.Map;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.CompletionsBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.PostCompletionResponse;\nimport org.openapis.openapi.models.operations.PostCompletionSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        CompletionsBody req = CompletionsBody.builder()\n                .serverId(\"server-123\")\n                .contextId(\"context-456\")\n                .modelId(\"model-789\")\n                .prompt(\"Translate the following text to French:\")\n                .parameters(Map.ofEntries(\n                    Map.entry(\"maxTokens\", 100L)))\n                .build();\n\n        PostCompletionResponse res = sdk.completions().postCompletion()\n                .request(req)\n                .security(PostCompletionSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.inlineResponse2007().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listConnections"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListConnectionsResponse;\nimport org.openapis.openapi.models.operations.ListConnectionsSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListConnectionsResponse res = sdk.connections().listConnections()\n                .security(ListConnectionsSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.connections().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "createConnection"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport java.util.List;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.*;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.CreateConnectionResponse;\nimport org.openapis.openapi.models.operations.CreateConnectionSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ConnectionsBody req = ConnectionsBody.builder()\n                .serverId(\"server-123\")\n                .transport(ConnectionsBodyTransport.STDIO)\n                .options(Options.of(TransportOptionsStdio.builder()\n                    .command(\"/usr/local/bin/mcp-server\")\n                    .args(List.of(\n                        \"--stdio\"))\n                    .build()))\n                .build();\n\n        CreateConnectionResponse res = sdk.connections().createConnection()\n                .request(req)\n                .security(CreateConnectionSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.connection().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}"]["delete"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "deleteConnection"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.DeleteConnectionResponse;\nimport org.openapis.openapi.models.operations.DeleteConnectionSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        DeleteConnectionResponse res = sdk.connections().deleteConnection()\n                .security(DeleteConnectionSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .call();\n\n        // handle response\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getConnectionById"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetConnectionByIdResponse;\nimport org.openapis.openapi.models.operations.GetConnectionByIdSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetConnectionByIdResponse res = sdk.connections().getConnectionById()\n                .security(GetConnectionByIdSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .call();\n\n        if (res.connection().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/auth/start"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "startConnectionAuth"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport java.util.List;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.AuthStartBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.StartConnectionAuthResponse;\nimport org.openapis.openapi.models.operations.StartConnectionAuthSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        StartConnectionAuthResponse res = sdk.connectionAuth().startConnectionAuth()\n                .security(StartConnectionAuthSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .authStartBody(AuthStartBody.builder()\n                    .callbackUrl(\"https://app.example.com/mcp/auth/callback\")\n                    .scopes(List.of(\n                        \"tools:read\",\n                        \"resources:read\"))\n                    .build())\n                .call();\n\n        if (res.authStartResponse().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/auth/status"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getConnectionAuthStatus"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetConnectionAuthStatusResponse;\nimport org.openapis.openapi.models.operations.GetConnectionAuthStatusSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetConnectionAuthStatusResponse res = sdk.connectionAuth().getConnectionAuthStatus()\n                .security(GetConnectionAuthStatusSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .call();\n\n        if (res.authStatus().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/cancel"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "cancelConnectionRequest"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.CancelRequestBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.CancelConnectionRequestResponse;\nimport org.openapis.openapi.models.operations.CancelConnectionRequestSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        CancelConnectionRequestResponse res = sdk.runtime().cancelConnectionRequest()\n                .security(CancelConnectionRequestSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .cancelRequestBody(CancelRequestBody.builder()\n                    .requestId(\"req-123abc\")\n                    .reason(\"User navigated away\")\n                    .build())\n                .call();\n\n        if (res.inlineResponse202().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/capabilities"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getConnectionCapabilities"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetConnectionCapabilitiesResponse;\nimport org.openapis.openapi.models.operations.GetConnectionCapabilitiesSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetConnectionCapabilitiesResponse res = sdk.runtime().getConnectionCapabilities()\n                .security(GetConnectionCapabilitiesSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .call();\n\n        if (res.capability().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/initialize"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "initializeConnection"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport java.util.Map;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.ConnectionInitializeBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.InitializeConnectionResponse;\nimport org.openapis.openapi.models.operations.InitializeConnectionSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        InitializeConnectionResponse res = sdk.runtime().initializeConnection()\n                .security(InitializeConnectionSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .connectionInitializeBody(ConnectionInitializeBody.builder()\n                    .clientName(\"MCP Hub\")\n                    .clientVersion(\"2.1.0\")\n                    .protocolVersion(\"2025-06-18\")\n                    .clientCapabilities(Map.ofEntries(\n                        Map.entry(\"roots\", Map.ofEntries(\n                            Map.entry(\"listChanged\", true))),\n                        Map.entry(\"sampling\", Map.ofEntries(\n                        ))))\n                    .build())\n                .call();\n\n        if (res.connectionInitializeResponse().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/ping"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "pingConnection"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.PingConnectionResponse;\nimport org.openapis.openapi.models.operations.PingConnectionSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        PingConnectionResponse res = sdk.connections().pingConnection()\n                .security(PingConnectionSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .call();\n\n        if (res.inlineResponse2004().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/prompts"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listConnectionPrompts"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListConnectionPromptsResponse;\nimport org.openapis.openapi.models.operations.ListConnectionPromptsSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListConnectionPromptsResponse res = sdk.runtime().listConnectionPrompts()\n                .security(ListConnectionPromptsSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .call();\n\n        if (res.prompts().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/prompts/{promptName}"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getConnectionPrompt"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport java.util.Map;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.PromptGetBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetConnectionPromptResponse;\nimport org.openapis.openapi.models.operations.GetConnectionPromptSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetConnectionPromptResponse res = sdk.runtime().getConnectionPrompt()\n                .security(GetConnectionPromptSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .promptName(\"<value>\")\n                .promptGetBody(PromptGetBody.builder()\n                    .arguments(Map.ofEntries(\n                        Map.entry(\"targetLanguage\", \"fr\")))\n                    .build())\n                .call();\n\n        if (res.prompt().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/resources"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listConnectionResources"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListConnectionResourcesResponse;\nimport org.openapis.openapi.models.operations.ListConnectionResourcesSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListConnectionResourcesResponse res = sdk.runtime().listConnectionResources()\n                .security(ListConnectionResourcesSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .call();\n\n        if (res.resources().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/resources/read"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "readConnectionResource"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.ResourceReadBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ReadConnectionResourceResponse;\nimport org.openapis.openapi.models.operations.ReadConnectionResourceSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ReadConnectionResourceResponse res = sdk.runtime().readConnectionResource()\n                .security(ReadConnectionResourceSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .resourceReadBody(ResourceReadBody.builder()\n                    .uri(\"file:///workspace/notes/todo.md\")\n                    .build())\n                .call();\n\n        if (res.resourceContent().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/tools"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listConnectionTools"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListConnectionToolsResponse;\nimport org.openapis.openapi.models.operations.ListConnectionToolsSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListConnectionToolsResponse res = sdk.runtime().listConnectionTools()\n                .security(ListConnectionToolsSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .call();\n\n        if (res.tools().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/connections/{connectionId}/tools/{toolName}/call"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "callConnectionTool"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport java.util.Map;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.ToolCallBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.CallConnectionToolResponse;\nimport org.openapis.openapi.models.operations.CallConnectionToolSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        CallConnectionToolResponse res = sdk.runtime().callConnectionTool()\n                .security(CallConnectionToolSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .connectionId(\"<id>\")\n                .toolName(\"<value>\")\n                .toolCallBody(ToolCallBody.builder()\n                    .arguments(Map.ofEntries(\n                        Map.entry(\"path\", \"/docs/readme.md\")))\n                    .requestId(\"req-tool-001\")\n                    .build())\n                .call();\n\n        if (res.toolCallResult().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/contexts"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listContexts"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListContextsResponse;\nimport org.openapis.openapi.models.operations.ListContextsSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListContextsResponse res = sdk.contexts().listContexts()\n                .security(ListContextsSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.contexts().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/contexts/{contextId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getContextById"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetContextByIdResponse;\nimport org.openapis.openapi.models.operations.GetContextByIdSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetContextByIdResponse res = sdk.contexts().getContextById()\n                .security(GetContextByIdSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .contextId(\"<id>\")\n                .call();\n\n        if (res.context().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/contexts/{contextId}/models"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listModelsInContext"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListModelsInContextResponse;\nimport org.openapis.openapi.models.operations.ListModelsInContextSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListModelsInContextResponse res = sdk.contexts().listModelsInContext()\n                .security(ListModelsInContextSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .contextId(\"<id>\")\n                .call();\n\n        if (res.models().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/events/requests/{requestId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getRequestDetails"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetRequestDetailsResponse;\nimport org.openapis.openapi.models.operations.GetRequestDetailsSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetRequestDetailsResponse res = sdk.events().getRequestDetails()\n                .security(GetRequestDetailsSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .requestId(\"<id>\")\n                .call();\n\n        if (res.requestDetails().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/events/stream"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "streamEvents"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.StreamEventsResponse;\nimport org.openapis.openapi.models.operations.StreamEventsSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        StreamEventsResponse res = sdk.events().streamEvents()\n                .security(StreamEventsSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.res().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/logging/level"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "setLoggingLevel"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.Level;\nimport org.openapis.openapi.models.components.LoggingLevelBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.SetLoggingLevelResponse;\nimport org.openapis.openapi.models.operations.SetLoggingLevelSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        LoggingLevelBody req = LoggingLevelBody.builder()\n                .level(Level.INFO)\n                .build();\n\n        SetLoggingLevelResponse res = sdk.logging().setLoggingLevel()\n                .request(req)\n                .security(SetLoggingLevelSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.inlineResponse2001().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/prompts"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listPrompts"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListPromptsResponse;\nimport org.openapis.openapi.models.operations.ListPromptsSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListPromptsResponse res = sdk.prompts().listPrompts()\n                .security(ListPromptsSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.prompts().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/prompts/{promptId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getPromptById"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetPromptByIdResponse;\nimport org.openapis.openapi.models.operations.GetPromptByIdSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetPromptByIdResponse res = sdk.prompts().getPromptById()\n                .security(GetPromptByIdSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .promptId(\"<id>\")\n                .call();\n\n        if (res.prompt().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/queries"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "postQuery"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport java.util.Map;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.QueriesBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.PostQueryResponse;\nimport org.openapis.openapi.models.operations.PostQuerySecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        QueriesBody req = QueriesBody.builder()\n                .serverId(\"server-123\")\n                .contextId(\"context-456\")\n                .modelId(\"model-789\")\n                .query(\"SELECT * FROM users WHERE active = true\")\n                .parameters(Map.ofEntries(\n                    Map.entry(\"limit\", 10L)))\n                .build();\n\n        PostQueryResponse res = sdk.queries().postQuery()\n                .request(req)\n                .security(PostQuerySecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.inlineResponse2008().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/resources"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listResources"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListResourcesResponse;\nimport org.openapis.openapi.models.operations.ListResourcesSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListResourcesResponse res = sdk.resources().listResources()\n                .security(ListResourcesSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.resources().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/resources/templates"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listResourceTemplates"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListResourceTemplatesResponse;\nimport org.openapis.openapi.models.operations.ListResourceTemplatesSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListResourceTemplatesResponse res = sdk.resources().listResourceTemplates()\n                .security(ListResourceTemplatesSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.resourceTemplates().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/resources/{resourceId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "readResource"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ReadResourceResponse;\nimport org.openapis.openapi.models.operations.ReadResourceSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ReadResourceResponse res = sdk.resources().readResource()\n                .security(ReadResourceSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .resourceId(\"<id>\")\n                .call();\n\n        if (res.resourceContent().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/resources/{resourceId}/subscribe"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "subscribeResource"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.SubscribeResourceResponse;\nimport org.openapis.openapi.models.operations.SubscribeResourceSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        SubscribeResourceResponse res = sdk.resources().subscribeResource()\n                .security(SubscribeResourceSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .resourceId(\"<id>\")\n                .call();\n\n        if (res.inlineResponse2005().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/resources/{resourceId}/unsubscribe"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "unsubscribeResource"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.UnsubscribeResourceResponse;\nimport org.openapis.openapi.models.operations.UnsubscribeResourceSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        UnsubscribeResourceResponse res = sdk.resources().unsubscribeResource()\n                .security(UnsubscribeResourceSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .resourceId(\"<id>\")\n                .call();\n\n        if (res.inlineResponse2006().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/servers"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listMcpServers"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListMcpServersResponse;\nimport org.openapis.openapi.models.operations.ListMcpServersSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListMcpServersResponse res = sdk.servers().listMcpServers()\n                .security(ListMcpServersSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.mcpServers().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/servers"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "registerMcpServer"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.ServersBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.RegisterMcpServerResponse;\nimport org.openapis.openapi.models.operations.RegisterMcpServerSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ServersBody req = ServersBody.builder()\n                .name(\"MCP Server Alpha\")\n                .url(\"https://mcp-alpha.example.com\")\n                .description(\"Primary MCP server for region A\")\n                .build();\n\n        RegisterMcpServerResponse res = sdk.servers().registerMcpServer()\n                .request(req)\n                .security(RegisterMcpServerSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.mcpServer().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/servers/{serverId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getMcpServerById"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetMcpServerByIdResponse;\nimport org.openapis.openapi.models.operations.GetMcpServerByIdSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetMcpServerByIdResponse res = sdk.servers().getMcpServerById()\n                .security(GetMcpServerByIdSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .serverId(\"<id>\")\n                .call();\n\n        if (res.mcpServer().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/system/health"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getSystemHealth"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetSystemHealthResponse;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetSystemHealthResponse res = sdk.system().getSystemHealth()\n                .timestamp(6433.07)\n                .call();\n\n        if (res.inlineResponse200().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/system/notifyOwner"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "postNotifyOwner"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.components.SystemNotifyOwnerBody;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.PostNotifyOwnerResponse;\nimport org.openapis.openapi.models.operations.PostNotifyOwnerSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        SystemNotifyOwnerBody req = SystemNotifyOwnerBody.builder()\n                .title(\"System Alert\")\n                .content(\"An important event has occurred.\")\n                .build();\n\n        PostNotifyOwnerResponse res = sdk.system().postNotifyOwner()\n                .request(req)\n                .security(PostNotifyOwnerSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.inlineResponse2001().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/tools"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "listTools"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.ListToolsResponse;\nimport org.openapis.openapi.models.operations.ListToolsSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        ListToolsResponse res = sdk.tools().listTools()\n                .security(ListToolsSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .call();\n\n        if (res.tools().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  - target: $["paths"]["/tools/{toolId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "java"
+          "label": "getToolById"
+          "source": "package hello.world;\n\nimport java.lang.Exception;\nimport org.openapis.openapi.McpHubApiJava;\nimport org.openapis.openapi.models.errors.Error;\nimport org.openapis.openapi.models.operations.GetToolByIdResponse;\nimport org.openapis.openapi.models.operations.GetToolByIdSecurity;\n\npublic class Application {\n\n    public static void main(String[] args) throws Error, Exception {\n\n        McpHubApiJava sdk = McpHubApiJava.builder()\n            .build();\n\n        GetToolByIdResponse res = sdk.tools().getToolById()\n                .security(GetToolByIdSecurity.builder()\n                    .appSessionCookie(\"<YOUR_API_KEY_HERE>\")\n                    .build())\n                .toolId(\"<id>\")\n                .call();\n\n        if (res.tool().isPresent()) {\n            // handle response\n        }\n    }\n}"
