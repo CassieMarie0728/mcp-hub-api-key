@@ -1,0 +1,257 @@
+overlay: 1.0.0
+info:
+  title: CodeSamples overlay for python target
+  version: 0.0.0
+actions:
+  - target: $["paths"]["/auth/login"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "postLogin"
+          "source": "from cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.auth.post_login(username=\"john.doe\", password=\"secret123\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/auth/logout"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "postLogout"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.auth.post_logout(security=cassie_marie_mcp_hub_api_python.PostLogoutSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/auth/me"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getCurrentUser"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.auth.get_current_user(security=cassie_marie_mcp_hub_api_python.GetCurrentUserSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/capabilities"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listCapabilities"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.capabilities.list_capabilities(security=cassie_marie_mcp_hub_api_python.ListCapabilitiesSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/completions"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "postCompletion"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.completions.post_completion(security=cassie_marie_mcp_hub_api_python.PostCompletionSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), server_id=\"server-123\", context_id=\"context-456\", model_id=\"model-789\", prompt=\"Translate the following text to French:\", parameters={\n        \"maxTokens\": 100,\n    })\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listConnections"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.connections.list_connections(security=cassie_marie_mcp_hub_api_python.ListConnectionsSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "createConnection"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.connections.create_connection(security=cassie_marie_mcp_hub_api_python.CreateConnectionSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), server_id=\"server-123\", transport=cassie_marie_mcp_hub_api_python.ConnectionsBodyTransport.STDIO, options={\n        \"command\": \"/usr/local/bin/mcp-server\",\n        \"args\": [\n            \"--stdio\",\n        ],\n    })\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}"]["delete"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "deleteConnection"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    mcp_hub_api_python.connections.delete_connection(security=cassie_marie_mcp_hub_api_python.DeleteConnectionSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\")\n\n    # Use the SDK ..."
+  - target: $["paths"]["/connections/{connectionId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getConnectionById"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.connections.get_connection_by_id(security=cassie_marie_mcp_hub_api_python.GetConnectionByIDSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/auth/start"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "startConnectionAuth"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.connection_auth.start_connection_auth(security=cassie_marie_mcp_hub_api_python.StartConnectionAuthSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\", callback_url=\"https://app.example.com/mcp/auth/callback\", scopes=[\n        \"tools:read\",\n        \"resources:read\",\n    ])\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/auth/status"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getConnectionAuthStatus"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.connection_auth.get_connection_auth_status(security=cassie_marie_mcp_hub_api_python.GetConnectionAuthStatusSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/cancel"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "cancelConnectionRequest"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.runtime.cancel_connection_request(security=cassie_marie_mcp_hub_api_python.CancelConnectionRequestSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\", request_id=\"req-123abc\", reason=\"User navigated away\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/capabilities"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getConnectionCapabilities"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.runtime.get_connection_capabilities(security=cassie_marie_mcp_hub_api_python.GetConnectionCapabilitiesSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/initialize"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "initializeConnection"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.runtime.initialize_connection(security=cassie_marie_mcp_hub_api_python.InitializeConnectionSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\", client_name=\"MCP Hub\", client_version=\"2.1.0\", protocol_version=\"2025-06-18\", client_capabilities={\n        \"roots\": {\n            \"listChanged\": True,\n        },\n        \"sampling\": {\n\n        },\n    })\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/ping"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "pingConnection"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.connections.ping_connection(security=cassie_marie_mcp_hub_api_python.PingConnectionSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/prompts"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listConnectionPrompts"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.runtime.list_connection_prompts(security=cassie_marie_mcp_hub_api_python.ListConnectionPromptsSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/prompts/{promptName}"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getConnectionPrompt"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.runtime.get_connection_prompt(security=cassie_marie_mcp_hub_api_python.GetConnectionPromptSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\", prompt_name=\"<value>\", arguments={\n        \"targetLanguage\": \"fr\",\n    })\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/resources"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listConnectionResources"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.runtime.list_connection_resources(security=cassie_marie_mcp_hub_api_python.ListConnectionResourcesSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/resources/read"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "readConnectionResource"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.runtime.read_connection_resource(security=cassie_marie_mcp_hub_api_python.ReadConnectionResourceSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\", uri=\"file:///workspace/notes/todo.md\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/tools"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listConnectionTools"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.runtime.list_connection_tools(security=cassie_marie_mcp_hub_api_python.ListConnectionToolsSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/connections/{connectionId}/tools/{toolName}/call"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "callConnectionTool"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.runtime.call_connection_tool(security=cassie_marie_mcp_hub_api_python.CallConnectionToolSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), connection_id=\"<id>\", tool_name=\"<value>\", arguments={\n        \"path\": \"/docs/readme.md\",\n    }, request_id=\"req-tool-001\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/contexts"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listContexts"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.contexts.list_contexts(security=cassie_marie_mcp_hub_api_python.ListContextsSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/contexts/{contextId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getContextById"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.contexts.get_context_by_id(security=cassie_marie_mcp_hub_api_python.GetContextByIDSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), context_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/contexts/{contextId}/models"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listModelsInContext"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.contexts.list_models_in_context(security=cassie_marie_mcp_hub_api_python.ListModelsInContextSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), context_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/events/requests/{requestId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getRequestDetails"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.events.get_request_details(security=cassie_marie_mcp_hub_api_python.GetRequestDetailsSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), request_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/events/stream"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "streamEvents"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.events.stream_events(security=cassie_marie_mcp_hub_api_python.StreamEventsSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/logging/level"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "setLoggingLevel"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.logging.set_logging_level(security=cassie_marie_mcp_hub_api_python.SetLoggingLevelSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), level=cassie_marie_mcp_hub_api_python.Level.INFO)\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/prompts"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listPrompts"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.prompts.list_prompts(security=cassie_marie_mcp_hub_api_python.ListPromptsSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/prompts/{promptId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getPromptById"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.prompts.get_prompt_by_id(security=cassie_marie_mcp_hub_api_python.GetPromptByIDSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), prompt_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/queries"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "postQuery"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.queries.post_query(security=cassie_marie_mcp_hub_api_python.PostQuerySecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), server_id=\"server-123\", context_id=\"context-456\", model_id=\"model-789\", query=\"SELECT * FROM users WHERE active = true\", parameters={\n        \"limit\": 10,\n    })\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/resources"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listResources"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.resources.list_resources(security=cassie_marie_mcp_hub_api_python.ListResourcesSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/resources/templates"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listResourceTemplates"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.resources.list_resource_templates(security=cassie_marie_mcp_hub_api_python.ListResourceTemplatesSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/resources/{resourceId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "readResource"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.resources.read_resource(security=cassie_marie_mcp_hub_api_python.ReadResourceSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), resource_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/resources/{resourceId}/subscribe"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "subscribeResource"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.resources.subscribe_resource(security=cassie_marie_mcp_hub_api_python.SubscribeResourceSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), resource_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/resources/{resourceId}/unsubscribe"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "unsubscribeResource"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.resources.unsubscribe_resource(security=cassie_marie_mcp_hub_api_python.UnsubscribeResourceSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), resource_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/servers"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listMcpServers"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.servers.list_mcp_servers(security=cassie_marie_mcp_hub_api_python.ListMcpServersSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/servers"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "registerMcpServer"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.servers.register_mcp_server(security=cassie_marie_mcp_hub_api_python.RegisterMcpServerSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), name=\"MCP Server Alpha\", url=\"https://mcp-alpha.example.com\", description=\"Primary MCP server for region A\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/servers/{serverId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getMcpServerById"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.servers.get_mcp_server_by_id(security=cassie_marie_mcp_hub_api_python.GetMcpServerByIDSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), server_id=\"<id>\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/system/health"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getSystemHealth"
+          "source": "from cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.system.get_system_health(timestamp=6433.07)\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/system/notifyOwner"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "postNotifyOwner"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.system.post_notify_owner(security=cassie_marie_mcp_hub_api_python.PostNotifyOwnerSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), title=\"System Alert\", content=\"An important event has occurred.\")\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/tools"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "listTools"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.tools.list_tools(security=cassie_marie_mcp_hub_api_python.ListToolsSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ))\n\n    # Handle response\n    print(res)"
+  - target: $["paths"]["/tools/{toolId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "python"
+          "label": "getToolById"
+          "source": "import cassie_marie_mcp_hub_api_python\nfrom cassie_marie_mcp_hub_api_python import McpHubAPIPython\n\n\nwith McpHubAPIPython() as mcp_hub_api_python:\n\n    res = mcp_hub_api_python.tools.get_tool_by_id(security=cassie_marie_mcp_hub_api_python.GetToolByIDSecurity(\n        app_session_cookie=\"<YOUR_API_KEY_HERE>\",\n    ), tool_id=\"<id>\")\n\n    # Handle response\n    print(res)"
