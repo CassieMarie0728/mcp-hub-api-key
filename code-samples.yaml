@@ -1,0 +1,257 @@
+overlay: 1.0.0
+info:
+  title: CodeSamples overlay for typescript target
+  version: 0.0.0
+actions:
+  - target: $["paths"]["/auth/login"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "postLogin"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.auth.postLogin({\n    username: \"john.doe\",\n    password: \"secret123\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/auth/logout"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "postLogout"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.auth.postLogout({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/auth/me"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getCurrentUser"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.auth.getCurrentUser({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/capabilities"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listCapabilities"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.capabilities.listCapabilities({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/completions"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "postCompletion"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.completions.postCompletion({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    serverId: \"server-123\",\n    contextId: \"context-456\",\n    modelId: \"model-789\",\n    prompt: \"Translate the following text to French:\",\n    parameters: {\n      \"maxTokens\": 100,\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listConnections"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.connections.listConnections({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "createConnection"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.connections.createConnection({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    serverId: \"server-123\",\n    transport: \"stdio\",\n    options: {\n      command: \"/usr/local/bin/mcp-server\",\n      args: [\n        \"--stdio\",\n      ],\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}"]["delete"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "deleteConnection"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  await mcpHubApiTypescript.connections.deleteConnection({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n  });\n\n\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getConnectionById"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.connections.getConnectionById({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/auth/start"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "startConnectionAuth"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.connectionAuth.startConnectionAuth({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n    authStartBody: {\n      callbackUrl: \"https://app.example.com/mcp/auth/callback\",\n      scopes: [\n        \"tools:read\",\n        \"resources:read\",\n      ],\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/auth/status"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getConnectionAuthStatus"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.connectionAuth.getConnectionAuthStatus({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/cancel"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "cancelConnectionRequest"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.runtime.cancelConnectionRequest({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n    cancelRequestBody: {\n      requestId: \"req-123abc\",\n      reason: \"User navigated away\",\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/capabilities"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getConnectionCapabilities"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.runtime.getConnectionCapabilities({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/initialize"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "initializeConnection"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.runtime.initializeConnection({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n    connectionInitializeBody: {\n      clientName: \"MCP Hub\",\n      clientVersion: \"2.1.0\",\n      protocolVersion: \"2025-06-18\",\n      clientCapabilities: {\n        \"roots\": {\n          \"listChanged\": true,\n        },\n        \"sampling\": {\n\n        },\n      },\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/ping"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "pingConnection"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.connections.pingConnection({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/prompts"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listConnectionPrompts"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.runtime.listConnectionPrompts({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/prompts/{promptName}"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getConnectionPrompt"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.runtime.getConnectionPrompt({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n    promptName: \"<value>\",\n    promptGetBody: {\n      arguments: {\n        \"targetLanguage\": \"fr\",\n      },\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/resources"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listConnectionResources"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.runtime.listConnectionResources({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/resources/read"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "readConnectionResource"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.runtime.readConnectionResource({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n    resourceReadBody: {\n      uri: \"file:///workspace/notes/todo.md\",\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/tools"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listConnectionTools"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.runtime.listConnectionTools({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/connections/{connectionId}/tools/{toolName}/call"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "callConnectionTool"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.runtime.callConnectionTool({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    connectionId: \"<id>\",\n    toolName: \"<value>\",\n    toolCallBody: {\n      arguments: {\n        \"path\": \"/docs/readme.md\",\n      },\n      requestId: \"req-tool-001\",\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/contexts"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listContexts"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.contexts.listContexts({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {});\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/contexts/{contextId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getContextById"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.contexts.getContextById({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    contextId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/contexts/{contextId}/models"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listModelsInContext"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.contexts.listModelsInContext({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    contextId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/events/requests/{requestId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getRequestDetails"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.events.getRequestDetails({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    requestId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/events/stream"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "streamEvents"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.events.streamEvents({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/logging/level"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "setLoggingLevel"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.logging.setLoggingLevel({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    level: \"info\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/prompts"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listPrompts"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.prompts.listPrompts({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/prompts/{promptId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getPromptById"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.prompts.getPromptById({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    promptId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/queries"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "postQuery"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.queries.postQuery({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    serverId: \"server-123\",\n    contextId: \"context-456\",\n    modelId: \"model-789\",\n    query: \"SELECT * FROM users WHERE active = true\",\n    parameters: {\n      \"limit\": 10,\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/resources"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listResources"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.resources.listResources({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {});\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/resources/templates"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listResourceTemplates"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.resources.listResourceTemplates({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/resources/{resourceId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "readResource"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.resources.readResource({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    resourceId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/resources/{resourceId}/subscribe"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "subscribeResource"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.resources.subscribeResource({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    resourceId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/resources/{resourceId}/unsubscribe"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "unsubscribeResource"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.resources.unsubscribeResource({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    resourceId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/servers"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listMcpServers"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.servers.listMcpServers({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {});\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/servers"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "registerMcpServer"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.servers.registerMcpServer({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    name: \"MCP Server Alpha\",\n    url: \"https://mcp-alpha.example.com\",\n    description: \"Primary MCP server for region A\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/servers/{serverId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getMcpServerById"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.servers.getMcpServerById({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    serverId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/system/health"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getSystemHealth"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.system.getSystemHealth({\n    timestamp: 6433.07,\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/system/notifyOwner"]["post"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "postNotifyOwner"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.system.postNotifyOwner({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    title: \"System Alert\",\n    content: \"An important event has occurred.\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/tools"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "listTools"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.tools.listTools({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+  - target: $["paths"]["/tools/{toolId}"]["get"]
+    update:
+      "x-codeSamples":
+        - "lang": "typescript"
+          "label": "getToolById"
+          "source": "import { McpHubApiTypescript } from \"@cassie-marie/mcp-hub-api-typescript\";\n\nconst mcpHubApiTypescript = new McpHubApiTypescript();\n\nasync function run() {\n  const result = await mcpHubApiTypescript.tools.getToolById({\n    appSessionCookie: \"<YOUR_API_KEY_HERE>\",\n  }, {\n    toolId: \"<id>\",\n  });\n\n  console.log(result);\n}\n\nrun();"
