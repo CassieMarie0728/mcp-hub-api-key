@@ -1,0 +1,43 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/npm/@scalar/api-reference/config.schema.json",
+  "theme": "kepler",
+  "layout": "modern",
+  "darkMode": true,
+  "hideDarkModeToggle": false,
+  "showSidebar": true,
+  "hideDownloadButton": false,
+  "hideModels": false,
+  "searchHotKey": "k",
+  "metaData": {
+    "title": "MCP Hub API Reference",
+    "description": "Interactive Scalar API docs for the MCP Hub API — a runtime and wrapper API for MCP server connections, tools, resources, prompts, completions, logs, events, authentication, and lifecycle management.",
+    "ogDescription": "Explore the MCP Hub API with Scalar.",
+    "ogTitle": "MCP Hub API Reference"
+  },
+  "spec": {
+    "url": "./docs/mcp-hub-api-openapi.yaml"
+  },
+  "servers": [
+    {
+      "url": "https://api.mcphub.example.com/v1",
+      "description": "Production MCP Hub API"
+    },
+    {
+      "url": "http://localhost:8080/v1",
+      "description": "Local Development MCP Hub API"
+    }
+  ],
+  "authentication": {
+    "preferredSecurityScheme": "BearerAuth",
+    "securitySchemes": {
+      "BearerAuth": {
+        "token": "${MCP_API_KEY}"
+      }
+    }
+  },
+  "customCss": ":root {\n  --scalar-color-accent: #981518;\n  --scalar-background-1: #0b0f0f;\n  --scalar-background-2: #111717;\n  --scalar-background-3: #171d1d;\n  --scalar-color-1: #f4f4f4;\n  --scalar-color-2: #a8a9ad;\n  --scalar-border-color: rgba(168, 169, 173, 0.22);\n}\n",
+  "defaultHttpClient": {
+    "targetKey": "shell",
+    "clientKey": "curl"
+  }
+}
