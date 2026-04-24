@@ -1,0 +1,18 @@
+# InitializeConnectionRequest
+
+## Example Usage
+
+```typescript
+import { InitializeConnectionRequest } from "@cassie-marie/mcp-hub-api-typescript/models/operations";
+
+let value: InitializeConnectionRequest = {
+  connectionId: "<id>",
+};
+```
+
+## Fields
+
+| Field                                                                                                                                                              | Type                                                                                                                                                               | Required                                                                                                                                                           | Description                                                                                                                                                        | Example                                                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `connectionId`                                                                                                                                                     | *string*                                                                                                                                                           | :heavy_check_mark:                                                                                                                                                 | Unique identifier of the connection.                                                                                                                               |                                                                                                                                                                    |
+| `connectionInitializeBody`                                                                                                                                         | [components.ConnectionInitializeBody](../../models/components/connectioninitializebody.md)                                                                         | :heavy_check_mark:                                                                                                                                                 | N/A                                                                                                                                                                | {<br/>"clientName": "MCP Hub",<br/>"clientVersion": "2.1.0",<br/>"protocolVersion": "2025-06-18",<br/>"clientCapabilities": {<br/>"roots": {<br/>"listChanged": true<br/>},<br/>"sampling": {}<br/>}<br/>} |
